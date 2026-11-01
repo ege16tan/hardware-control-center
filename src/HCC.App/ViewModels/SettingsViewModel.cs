@@ -16,6 +16,7 @@ public sealed class SettingsViewModel : ObservableObject
         AvailableIntervals = MonitoringSettings.AvailableIntervals;
         foreach (var profile in settings.Profiles) Profiles.Add(profile);
         if (Profiles.Count > 0) SelectedProfile = Profiles[0];
+        if (settings.LastPersistenceError is not null) _profileMessage = settings.LastPersistenceError;
         SaveProfileCommand = new RelayCommand(SaveProfile);
         ApplyProfileCommand = new RelayCommand(ApplyProfile);
         DeleteProfileCommand = new RelayCommand(DeleteProfile);
@@ -42,8 +43,15 @@ public sealed class SettingsViewModel : ObservableObject
         get => _selectedRefreshIntervalSeconds;
         set
         {
-            if (!SetProperty(ref _selectedRefreshIntervalSeconds, value)) return;
-            _settings.RefreshIntervalSeconds = value;
+            if (value == _selectedRefreshIntervalSeconds) return;
+            if (!_settings.TrySetRefreshIntervalSeconds(value))
+            {
+                ProfileMessage = _settings.LastPersistenceError ?? "Dieses Aktualisierungsintervall wird nicht unterstützt.";
+                OnPropertyChanged();
+                return;
+            }
+            SetProperty(ref _selectedRefreshIntervalSeconds, value);
+            ProfileMessage = "Aktualisierungsintervall gespeichert.";
         }
     }
 
@@ -51,9 +59,14 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void SaveProfile()
     {
-        if (!_settings.SaveProfile(ProfileName))
+        if (string.IsNullOrWhiteSpace(ProfileName) || ProfileName.Trim().Length > 32)
         {
             ProfileMessage = "Bitte einen Namen mit 1 bis 32 Zeichen eingeben.";
+            return;
+        }
+        if (!_settings.SaveProfile(ProfileName))
+        {
+            ProfileMessage = _settings.LastPersistenceError ?? "Bitte einen Namen mit 1 bis 32 Zeichen eingeben.";
             return;
         }
         RefreshProfiles(ProfileName.Trim());
@@ -64,7 +77,7 @@ public sealed class SettingsViewModel : ObservableObject
     {
         if (!_settings.ApplyProfile(SelectedProfile))
         {
-            ProfileMessage = "Profil konnte nicht geladen werden.";
+            ProfileMessage = _settings.LastPersistenceError ?? "Profil konnte nicht geladen werden.";
             return;
         }
         SelectedRefreshIntervalSeconds = _settings.RefreshIntervalSeconds;
@@ -73,9 +86,14 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void DeleteProfile()
     {
-        if (!_settings.DeleteProfile(SelectedProfile))
+        if (SelectedProfile is null)
         {
             ProfileMessage = "Bitte zuerst ein Profil auswählen.";
+            return;
+        }
+        if (!_settings.DeleteProfile(SelectedProfile))
+        {
+            ProfileMessage = _settings.LastPersistenceError ?? "Bitte zuerst ein Profil auswählen.";
             return;
         }
         var deleted = SelectedProfile;

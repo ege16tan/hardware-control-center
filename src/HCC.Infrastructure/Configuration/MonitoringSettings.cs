@@ -8,6 +8,7 @@ public sealed class MonitoringSettings
     private readonly string _settingsPath;
     private int _refreshIntervalSeconds = 2;
     private readonly Dictionary<string, int> _profiles = new(StringComparer.OrdinalIgnoreCase);
+    public string? LastPersistenceError { get; private set; }
 
     public MonitoringSettings(string? storageDirectory = null)
     {
@@ -20,13 +21,7 @@ public sealed class MonitoringSettings
     public int RefreshIntervalSeconds
     {
         get => _refreshIntervalSeconds;
-        set
-        {
-            if (!SupportedIntervals.Contains(value) || _refreshIntervalSeconds == value) return;
-            _refreshIntervalSeconds = value;
-            Save();
-            RefreshIntervalChanged?.Invoke(this, EventArgs.Empty);
-        }
+        set => TrySetRefreshIntervalSeconds(value);
     }
 
     public static IReadOnlyList<int> AvailableIntervals => SupportedIntervals;
@@ -36,23 +31,41 @@ public sealed class MonitoringSettings
     {
         var normalizedName = NormalizeProfileName(name);
         if (normalizedName is null) return false;
+        var existed = _profiles.TryGetValue(normalizedName, out var previousInterval);
         _profiles[normalizedName] = RefreshIntervalSeconds;
-        Save();
-        return true;
+        if (Save()) return true;
+        if (existed) _profiles[normalizedName] = previousInterval;
+        else _profiles.Remove(normalizedName);
+        return false;
     }
 
     public bool ApplyProfile(string? name)
     {
         var normalizedName = NormalizeProfileName(name);
-        return normalizedName is not null && _profiles.TryGetValue(normalizedName, out var interval) && SupportedIntervals.Contains(interval)
-            && ApplyRefreshInterval(interval);
+        return normalizedName is not null && _profiles.TryGetValue(normalizedName, out var interval) && TrySetRefreshIntervalSeconds(interval);
     }
 
     public bool DeleteProfile(string? name)
     {
         var normalizedName = NormalizeProfileName(name);
-        if (normalizedName is null || !_profiles.Remove(normalizedName)) return false;
-        Save();
+        if (normalizedName is null || !_profiles.Remove(normalizedName, out var previousInterval)) return false;
+        if (Save()) return true;
+        _profiles[normalizedName] = previousInterval;
+        return false;
+    }
+
+    public bool TrySetRefreshIntervalSeconds(int seconds)
+    {
+        if (!SupportedIntervals.Contains(seconds)) return false;
+        if (_refreshIntervalSeconds == seconds) return true;
+        var previous = _refreshIntervalSeconds;
+        _refreshIntervalSeconds = seconds;
+        if (!Save())
+        {
+            _refreshIntervalSeconds = previous;
+            return false;
+        }
+        RefreshIntervalChanged?.Invoke(this, EventArgs.Empty);
         return true;
     }
 
@@ -69,6 +82,7 @@ public sealed class MonitoringSettings
                     if (saved.RefreshIntervalSeconds is int seconds && SupportedIntervals.Contains(seconds)) settings._refreshIntervalSeconds = seconds;
                     foreach (var profile in saved.Profiles ?? [])
                     {
+                        if (profile is null) continue;
                         var name = NormalizeProfileName(profile.Name);
                         if (name is not null && SupportedIntervals.Contains(profile.RefreshIntervalSeconds)) settings._profiles[name] = profile.RefreshIntervalSeconds;
                     }
@@ -76,13 +90,13 @@ public sealed class MonitoringSettings
                 }
             }
         }
-        catch (IOException) { }
-        catch (JsonException) { }
-        catch (UnauthorizedAccessException) { }
+        catch (IOException ex) { settings.LastPersistenceError = $"Einstellungen konnten nicht geladen werden: {ex.Message}"; }
+        catch (JsonException ex) { settings.LastPersistenceError = $"Einstellungsdatei ist beschädigt: {ex.Message}"; }
+        catch (UnauthorizedAccessException ex) { settings.LastPersistenceError = $"Einstellungen dürfen nicht gelesen werden: {ex.Message}"; }
         return settings;
     }
 
-    private void Save()
+    private bool Save()
     {
         try
         {
@@ -92,17 +106,11 @@ public sealed class MonitoringSettings
             var profiles = _profiles.Select(profile => new SavedProfile(profile.Key, profile.Value)).ToList();
             File.WriteAllText(temporaryPath, JsonSerializer.Serialize(new SavedSettings(_refreshIntervalSeconds, profiles)));
             File.Move(temporaryPath, _settingsPath, overwrite: true);
+            LastPersistenceError = null;
+            return true;
         }
-        catch (IOException) { }
-        catch (UnauthorizedAccessException) { }
-    }
-
-    private bool ApplyRefreshInterval(int seconds)
-    {
-        if (!SupportedIntervals.Contains(seconds)) return false;
-        if (_refreshIntervalSeconds == seconds) return true;
-        RefreshIntervalSeconds = seconds;
-        return true;
+        catch (IOException ex) { LastPersistenceError = $"Einstellungen konnten nicht gespeichert werden: {ex.Message}"; return false; }
+        catch (UnauthorizedAccessException ex) { LastPersistenceError = $"Einstellungen dürfen nicht gespeichert werden: {ex.Message}"; return false; }
     }
 
     private static string? NormalizeProfileName(string? name)

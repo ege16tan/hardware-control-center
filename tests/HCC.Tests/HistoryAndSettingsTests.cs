@@ -114,6 +114,84 @@ public sealed class HistoryAndSettingsTests
         }
     }
 
+    [Fact]
+    public void MonitoringSettings_SkipsNullAndInvalidProfiles()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(directory, "settings.json"),
+                "{\"RefreshIntervalSeconds\":5,\"Profiles\":[null,{\"Name\":null,\"RefreshIntervalSeconds\":5},{\"Name\":\"bad\",\"RefreshIntervalSeconds\":99}]}");
+
+            var settings = MonitoringSettings.Load(directory);
+
+            Assert.Equal(5, settings.RefreshIntervalSeconds);
+            Assert.Empty(settings.Profiles);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MonitoringSettings_DoesNotClaimIntervalOrProfileWasSavedWhenStorageFails()
+    {
+        var directory = CreateTempDirectory();
+        var blockingFile = Path.Combine(directory, "not-a-directory");
+        File.WriteAllText(blockingFile, "block settings directory creation");
+        try
+        {
+            var settings = new MonitoringSettings(blockingFile);
+
+            Assert.False(settings.TrySetRefreshIntervalSeconds(5));
+            Assert.Equal(2, settings.RefreshIntervalSeconds);
+            Assert.NotNull(settings.LastPersistenceError);
+            Assert.False(settings.SaveProfile("Gaming"));
+            Assert.Empty(settings.Profiles);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MetricHistoryStore_RejectsEmptySamplesAndZeroCountLoads()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var store = new MetricHistoryStore(directory);
+
+            Assert.False(store.Append(new MetricHistoryEntry(DateTimeOffset.UtcNow, null, null, null)));
+            Assert.Empty(store.LoadRecent(0));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MetricHistoryStore_ReportsWriteFailure()
+    {
+        var directory = CreateTempDirectory();
+        var blockingFile = Path.Combine(directory, "not-a-directory");
+        File.WriteAllText(blockingFile, "block history directory creation");
+        try
+        {
+            var store = new MetricHistoryStore(blockingFile);
+
+            Assert.False(store.Append(new MetricHistoryEntry(DateTimeOffset.UtcNow, 10, 20, 30)));
+            Assert.NotNull(store.LastError);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), $"hcc-tests-{Guid.NewGuid():N}");

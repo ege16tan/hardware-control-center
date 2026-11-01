@@ -1,5 +1,6 @@
 using HCC.Core.Interfaces;
 using HCC.Hardware.Monitoring;
+using HCC.Infrastructure.Monitoring;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HCC.Infrastructure.DependencyInjection;
@@ -10,6 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<HardwareMetricsProvider>();
         services.AddSingleton<IMetricsProvider>(provider => provider.GetRequiredService<HardwareMetricsProvider>());
+        services.AddSingleton<MetricsSampler>();
         return services;
     }
 }

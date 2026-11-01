@@ -1,70 +1,76 @@
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HCC.Core.Interfaces;
 using HCC.Core.Models;
 using HCC.Infrastructure.Configuration;
+using HCC.Infrastructure.Monitoring;
 
 namespace HCC.App.ViewModels;
 
 public sealed class MonitoringViewModel : ObservableObject, IDisposable
 {
-    private readonly IMetricsProvider _metricsProvider;
+    private readonly MetricsSampler _metricsSampler;
     private readonly MonitoringSettings _settings;
-    private readonly DispatcherTimer _timer;
+    private readonly Dispatcher _dispatcher;
     private string _status = "Sensoren werden geladen …";
 
-    public MonitoringViewModel(IMetricsProvider metricsProvider, MonitoringSettings settings)
+    public MonitoringViewModel(MetricsSampler metricsSampler, MonitoringSettings settings)
     {
-        _metricsProvider = metricsProvider;
+        _metricsSampler = metricsSampler;
         _settings = settings;
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(_settings.RefreshIntervalSeconds) };
-        RefreshCommand = new RelayCommand(Refresh);
-        _timer.Tick += OnTimerTick;
+        _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+        RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         _settings.RefreshIntervalChanged += OnRefreshIntervalChanged;
-        Refresh();
-        _timer.Start();
+        _metricsSampler.SnapshotUpdated += OnSnapshotUpdated;
+        _metricsSampler.SamplingFailed += OnSamplingFailed;
+        if (_metricsSampler.LatestSnapshot is { } latest) ApplySnapshot(latest);
+        else _ = RefreshAsync();
     }
 
     public ObservableCollection<HardwareSensorReading> Sensors { get; } = [];
     public ObservableCollection<HardwareDeviceReading> HardwareDevices { get; } = [];
-    public IRelayCommand RefreshCommand { get; }
+    public IAsyncRelayCommand RefreshCommand { get; }
     public string Status { get => _status; private set => SetProperty(ref _status, value); }
 
     public void Dispose()
     {
-        _timer.Stop();
-        _timer.Tick -= OnTimerTick;
         _settings.RefreshIntervalChanged -= OnRefreshIntervalChanged;
+        _metricsSampler.SnapshotUpdated -= OnSnapshotUpdated;
+        _metricsSampler.SamplingFailed -= OnSamplingFailed;
     }
 
-    private void OnTimerTick(object? sender, EventArgs e) => Refresh();
-
-    private void OnRefreshIntervalChanged(object? sender, EventArgs e)
+    private async Task RefreshAsync()
     {
-        _timer.Interval = TimeSpan.FromSeconds(_settings.RefreshIntervalSeconds);
-        Refresh();
+        try { await _metricsSampler.RefreshNowAsync(); }
+        catch (Exception ex) { OnSamplingFailed(ex); }
     }
 
-    private void Refresh()
+    private void OnRefreshIntervalChanged(object? sender, EventArgs e) => OnUiThread(() =>
     {
-        try
-        {
-            var snapshot = _metricsProvider.ReadCurrent();
-            Sensors.Clear();
-            foreach (var sensor in snapshot.Sensors ?? []) Sensors.Add(sensor);
-            HardwareDevices.Clear();
-            foreach (var device in snapshot.HardwareDevices ?? []) HardwareDevices.Add(device);
-            Status = snapshot.Status ?? (Sensors.Count == 0
-                ? "Keine unterstützten Sensoren gefunden."
-                : $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
-        }
-        catch (Exception ex)
-        {
-            Sensors.Clear();
-            HardwareDevices.Clear();
-            Status = $"Sensorabfrage fehlgeschlagen: {ex.Message}";
-        }
+        if (Sensors.Count > 0) Status = $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden";
+    });
+
+    private void OnSnapshotUpdated(MetricSnapshot snapshot) => OnUiThread(() => ApplySnapshot(snapshot));
+
+    private void OnSamplingFailed(Exception exception) => OnUiThread(() =>
+        Status = $"Sensorabfrage fehlgeschlagen; letzter Stand bleibt sichtbar: {exception.Message}");
+
+    private void ApplySnapshot(MetricSnapshot snapshot)
+    {
+        Sensors.Clear();
+        foreach (var sensor in snapshot.Sensors ?? []) Sensors.Add(sensor);
+        HardwareDevices.Clear();
+        foreach (var device in snapshot.HardwareDevices ?? []) HardwareDevices.Add(device);
+        Status = snapshot.Status ?? (Sensors.Count == 0
+            ? "Keine unterstützten Sensoren gefunden."
+            : $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
+    }
+
+    private void OnUiThread(Action action)
+    {
+        if (_dispatcher.CheckAccess()) action();
+        else _dispatcher.BeginInvoke(action);
     }
 }

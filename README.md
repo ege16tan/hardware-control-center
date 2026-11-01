@@ -1,6 +1,6 @@
 # Hardware Control Center
 
-Hardware Control Center (HCC) is a Windows desktop application for monitoring and controlling PC hardware.
+Hardware Control Center (HCC) is a Windows desktop application for monitoring PC hardware. Fan control and hardware tuning are planned and are not currently available.
 
 ## Overview
 
@@ -8,25 +8,26 @@ The project aims to provide a modern WPF-based dashboard for live hardware monit
 
 ## Features
 
-- CPU, GPU, RAM, and temperature monitoring
-- Fan speed and RPM display
-- Custom performance profiles
-- Dashboard with live charts
-- Modular architecture for multiple hardware vendors
+- Live CPU, GPU, RAM, temperature, clock, voltage, power, and fan-speed readings when supported by the hardware
+- Detected hardware and sensor inventory
+- Dashboard with a locally persisted performance history
+- Named monitoring profiles for the refresh interval
+- Modular architecture intended to support additional hardware vendors
 
 ## Tech Stack
 
 - C# / .NET 10
 - WPF
-- WPF-UI
 - MVVM Toolkit
+- Microsoft.Extensions.DependencyInjection
 - LibreHardwareMonitor
 - LiveCharts2
-- Serilog
+- System.Text.Json
+- xUnit
 
 ## Project Status
 
-The WPF dashboard includes live CPU/GPU/RAM readings and a chart of the last 60 measurements. CPU/GPU load comes from available LibreHardwareMonitor sensors, while RAM usage comes from Windows. The Monitoring page lists detected temperature, fan, clock, voltage, power, load, and memory readings. Persistent history and Task Manager-compatible GPU engine counters remain planned.
+The WPF dashboard reads CPU/GPU/RAM metrics through a shared background sampler and charts the last 60 valid samples. Up to 7,200 samples are stored locally. CPU/GPU load comes from available LibreHardwareMonitor sensors, while RAM usage comes from Windows. The Monitoring page lists detected devices and their supported readings. Profiles currently save the monitoring interval; fan control, tuning, alerts, recording sessions, and Task Manager-compatible GPU engine counters remain planned.
 
 ## Run and test
 
@@ -37,6 +38,6 @@ dotnet run --project .\src\HCC.App\HCC.App.csproj
 dotnet test .\HardwareControlCenter.sln
 ```
 
-The Dashboard updates every two seconds. The Monitoring page also has a manual refresh button.
+The Dashboard and Monitoring page use the configured interval (1, 2, 5, or 10 seconds). Both views share the same background sample. Manual refresh is available on both pages.
 
 See [PHASENPLAN.md](PHASENPLAN.md) for the development roadmap.

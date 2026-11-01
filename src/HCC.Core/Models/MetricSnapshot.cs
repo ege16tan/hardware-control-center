@@ -10,4 +10,7 @@ public sealed record MetricSnapshot(
     bool IsSimulated = false,
     string? Status = null,
     string? GpuLoadSensorName = null,
-    IReadOnlyList<HardwareDeviceReading>? HardwareDevices = null);
+    IReadOnlyList<HardwareDeviceReading>? HardwareDevices = null,
+    bool CpuAvailable = true,
+    bool GpuAvailable = true,
+    bool MemoryAvailable = true);

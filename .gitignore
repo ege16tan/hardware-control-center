@@ -5,3 +5,5 @@ obj/
 *.suo
 *.cache
 Thumbs.db
+.dotnet-home/
+restore-diagnostic.log

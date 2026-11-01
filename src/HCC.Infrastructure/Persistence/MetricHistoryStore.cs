@@ -15,6 +15,7 @@ public sealed class MetricHistoryStore
     private readonly int _maximumEntries;
     private readonly int _compactionBatchSize;
     private bool _loaded;
+    public string? LastError { get; private set; }
 
     public MetricHistoryStore(string? storageDirectory = null, int maximumEntries = MaximumEntries, int compactionBatchSize = CompactionBatchSize)
     {
@@ -31,11 +32,12 @@ public sealed class MetricHistoryStore
             try
             {
                 EnsureLoaded();
-                return _entries.TakeLast(Math.Clamp(count, 1, _maximumEntries)).ToArray();
+                if (count <= 0) return [];
+                return _entries.TakeLast(Math.Min(count, _maximumEntries)).ToArray();
             }
-            catch (IOException) { return []; }
-            catch (JsonException) { return []; }
-            catch (UnauthorizedAccessException) { return []; }
+            catch (IOException ex) { LastError = ex.Message; return []; }
+            catch (JsonException ex) { LastError = ex.Message; return []; }
+            catch (UnauthorizedAccessException ex) { LastError = ex.Message; return []; }
         }
     }
 
@@ -55,33 +57,41 @@ public sealed class MetricHistoryStore
                     _entries.RemoveRange(0, _entries.Count - _maximumEntries);
                     Rewrite();
                 }
+                LastError = null;
                 return true;
             }
-            catch (IOException) { return false; }
-            catch (JsonException) { return false; }
-            catch (UnauthorizedAccessException) { return false; }
+            catch (IOException ex) { LastError = ex.Message; return false; }
+            catch (JsonException ex) { LastError = ex.Message; return false; }
+            catch (UnauthorizedAccessException ex) { LastError = ex.Message; return false; }
         }
     }
 
     private void EnsureLoaded()
     {
         if (_loaded) return;
-        _loaded = true;
-        if (!File.Exists(_historyPath)) return;
+        if (!File.Exists(_historyPath))
+        {
+            _loaded = true;
+            return;
+        }
 
+        var loadedEntries = new List<MetricHistoryEntry>();
         foreach (var line in File.ReadLines(_historyPath, Utf8))
         {
             try
             {
-                if (JsonSerializer.Deserialize<MetricHistoryEntry>(line) is { } entry && IsValid(entry)) _entries.Add(entry);
+                if (JsonSerializer.Deserialize<MetricHistoryEntry>(line) is { } entry && IsValid(entry)) loadedEntries.Add(entry);
             }
             catch (JsonException) { }
         }
+        _entries.Clear();
+        _entries.AddRange(loadedEntries);
         if (_entries.Count > _maximumEntries)
         {
             _entries.RemoveRange(0, _entries.Count - _maximumEntries);
             Rewrite();
         }
+        _loaded = true;
     }
 
     private void Rewrite()
@@ -92,7 +102,8 @@ public sealed class MetricHistoryStore
     }
 
     private static bool IsValid(MetricHistoryEntry entry) =>
-        entry.CpuUsagePercent is >= 0 and <= 100 &&
-        entry.GpuUsagePercent is >= 0 and <= 100 &&
-        entry.MemoryUsagePercent is >= 0 and <= 100;
+        (entry.CpuUsagePercent.HasValue || entry.GpuUsagePercent.HasValue || entry.MemoryUsagePercent.HasValue) &&
+        IsValid(entry.CpuUsagePercent) && IsValid(entry.GpuUsagePercent) && IsValid(entry.MemoryUsagePercent);
+
+    private static bool IsValid(double? value) => value is null or (>= 0 and <= 100);
 }

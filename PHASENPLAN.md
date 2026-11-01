@@ -5,7 +5,7 @@
 - [x] WPF-Projekt und Solution einrichten
 - [x] Projekte für App, Core, Hardware, Infrastructure und Tests anlegen
 - [x] MVVM-Architektur und Dependency Injection einrichten
-- [x] WPF-UI integrieren und ein modernes Dark Theme erstellen
+- [x] WPF-Dark-Theme und moderne Styles erstellen
 - [x] Sidebar und funktionierende Navigation bauen
 - [x] Dashboard mit CPU-, GPU- und RAM-Karten erstellen
 - [x] Karten zunächst mit simulierten Testdaten befüllen
@@ -44,7 +44,7 @@
 ### Phase 5 – Einstellungen und Profile
 
 - [x] Monitoring-Intervall speichern und laden
-- [ ] Benannte Monitoring-Profile speichern, laden und löschen
+- [x] Benannte Monitoring-Profile speichern, laden und löschen
 - [ ] Autostart und weitere Herstellerunterstützung ergänzen
 - [ ] Logging und Fehlerdiagnose vervollständigen
 

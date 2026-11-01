@@ -8,7 +8,7 @@ namespace HCC.Hardware.Monitoring;
 public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
 {
     private readonly object _sync = new();
-    private string? _openError;
+    private string? _initializationError;
     private readonly Computer _computer = new()
     {
         IsCpuEnabled = true,
@@ -21,7 +21,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
     public HardwareMetricsProvider()
     {
         try { _computer.Open(); }
-        catch (Exception ex) { _openError = ex.Message; }
+        catch (Exception ex) { _initializationError = ex.Message; }
     }
 
     public MetricSnapshot ReadCurrent()
@@ -34,19 +34,26 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             double? gpuLoad = null;
             string? gpuLoadSensorName = null;
             var gpuLoadSensorScore = 0;
+            string? hardwareReadError = null;
 
-            if (_openError is null)
+            if (_initializationError is null)
             {
                 foreach (var hardware in _computer.Hardware)
                 {
                     try { ReadHardware(hardware, sensors, devices, ref cpuLoad, ref gpuLoad, ref gpuLoadSensorName, ref gpuLoadSensorScore); }
-                    catch (Exception ex) { _openError = ex.Message; }
+                    catch (Exception ex) { hardwareReadError ??= $"{hardware.Name}: {ex.Message}"; }
                 }
             }
 
             var memory = new MemoryStatusEx { Length = (uint)Marshal.SizeOf<MemoryStatusEx>() };
             if (!GlobalMemoryStatusEx(ref memory))
-                return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, 0, 0, 0, sensors, Status: "Windows-Speicherwerte nicht verfügbar");
+                return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, 0, 0, 0, sensors,
+                    Status: "Windows-Speicherwerte nicht verfügbar",
+                    GpuLoadSensorName: gpuLoadSensorName,
+                    HardwareDevices: devices,
+                    CpuAvailable: cpuLoad.HasValue,
+                    GpuAvailable: gpuLoad.HasValue,
+                    MemoryAvailable: false);
 
             var totalGb = memory.TotalPhysical / 1024d / 1024 / 1024;
             var availableGb = memory.AvailablePhysical / 1024d / 1024 / 1024;
@@ -55,15 +62,24 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             sensors.Add(new HardwareSensorReading("Arbeitsspeicher", "Belegt", "Data", usedGb, "GB"));
             sensors.Add(new HardwareSensorReading("Arbeitsspeicher", "Verfügbar", "Data", availableGb, "GB"));
             return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, memory.MemoryLoad, usedGb, totalGb, sensors,
-                Status: _openError is not null ? $"LibreHardwareMonitor: {_openError}" : cpuLoad is null && gpuLoad is null ? "CPU-/GPU-Auslastung wird von dieser Hardware nicht gemeldet" : null,
+                Status: _initializationError is not null ? $"LibreHardwareMonitor konnte nicht gestartet werden: {_initializationError}"
+                    : hardwareReadError is not null ? $"Ein Hardwaregerät konnte nicht gelesen werden: {hardwareReadError}"
+                    : cpuLoad is null && gpuLoad is null ? "CPU-/GPU-Auslastung wird von dieser Hardware nicht gemeldet"
+                    : cpuLoad is null || gpuLoad is null ? "Ein CPU- oder GPU-Auslastungssensor wird nicht gemeldet"
+                    : null,
                 GpuLoadSensorName: gpuLoadSensorName,
-                HardwareDevices: devices);
+                HardwareDevices: devices,
+                CpuAvailable: cpuLoad.HasValue,
+                GpuAvailable: gpuLoad.HasValue);
         }
     }
 
     public void Dispose()
     {
-        try { _computer.Close(); } catch { /* A failed initialization has nothing to close. */ }
+        lock (_sync)
+        {
+            try { _computer.Close(); } catch { /* A failed initialization has nothing to close. */ }
+        }
     }
 
     private static void ReadHardware(IHardware hardware, List<HardwareSensorReading> readings, List<HardwareDeviceReading> devices, ref double? cpuLoad, ref double? gpuLoad, ref string? gpuLoadSensorName, ref int gpuLoadSensorScore)
