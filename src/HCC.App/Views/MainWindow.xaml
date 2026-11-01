@@ -1,0 +1,86 @@
+<Window x:Class="HCC.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:HCC.App.ViewModels"
+        xmlns:views="clr-namespace:HCC.App.Views"
+        Title="Hardware Control Center"
+        Width="1280"
+        Height="820"
+        MinWidth="960"
+        MinHeight="640"
+        Background="{StaticResource AppBackgroundBrush}"
+        Foreground="#F2F4F8"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MonitoringViewModel}">
+            <views:MonitoringView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
+        </DataTemplate>
+        <Style x:Key="NavigationButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#C5CBD5" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="248" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="20">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top">
+                    <StackPanel Orientation="Horizontal" Margin="4,8,0,34">
+                        <Border Width="34" Height="34" CornerRadius="10" Background="{StaticResource AccentBrush}">
+                            <TextBlock Text="H" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="HARDWARE" FontSize="11" Foreground="{StaticResource MutedTextBrush}" />
+                            <TextBlock Text="Control Center" FontSize="14" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Text="ARBEITSBEREICH" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource MutedTextBrush}" Margin="12,0,0,9" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="▦   Dashboard" Command="{Binding NavigateDashboardCommand}" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="◉   Monitoring" Command="{Binding NavigateMonitoringCommand}" />
+                </StackPanel>
+
+                <Button DockPanel.Dock="Bottom"
+                        Style="{StaticResource NavigationButtonStyle}"
+                        Content="⚙   Einstellungen"
+                        Command="{Binding NavigateSettingsCommand}" />
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="36,28,36,32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" Margin="0,0,0,28">
+                <Border DockPanel.Dock="Right" Background="#20252E" CornerRadius="14" Padding="12,7" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7" Height="7" Fill="#57D6A0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="#C5CBD5" />
+                    </StackPanel>
+                </Border>
+                <StackPanel>
+                    <TextBlock Text="{Binding CurrentTitle}" FontSize="26" FontWeight="SemiBold" />
+                    <TextBlock Text="Systemübersicht und Hardwarestatus" Foreground="{StaticResource MutedTextBrush}" Margin="0,5,0,0" />
+                </StackPanel>
+            </DockPanel>
+            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+        </Grid>
+    </Grid>
+</Window>

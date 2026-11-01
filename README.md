@@ -26,4 +26,17 @@ The project aims to provide a modern WPF-based dashboard for live hardware monit
 
 ## Project Status
 
-This repository is initialized as a private GitHub project and is intended as the base for the Hardware Control Center application.
+The WPF dashboard includes live CPU/GPU/RAM readings and a chart of the last 60 measurements. CPU/GPU load comes from available LibreHardwareMonitor sensors, while RAM usage comes from Windows. The Monitoring page lists detected temperature, fan, clock, voltage, power, load, and memory readings. Persistent history and Task Manager-compatible GPU engine counters remain planned.
+
+## Run and test
+
+On Windows with the .NET 10 SDK installed, run the app from the repository folder:
+
+```powershell
+dotnet run --project .\src\HCC.App\HCC.App.csproj
+dotnet test .\HardwareControlCenter.sln
+```
+
+The Dashboard updates every two seconds. The Monitoring page also has a manual refresh button.
+
+See [PHASENPLAN.md](PHASENPLAN.md) for the development roadmap.

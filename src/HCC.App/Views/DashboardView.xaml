@@ -1,0 +1,68 @@
+<UserControl x:Class="HCC.App.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <DockPanel Margin="0,0,0,20">
+            <Button DockPanel.Dock="Right"
+                    Content="Aktualisieren"
+                    Command="{Binding RefreshCommand}"
+                    Padding="14,8"
+                    Background="#292F3A"
+                    Foreground="#F2F4F8"
+                    BorderThickness="0"
+                    Cursor="Hand" />
+            <StackPanel>
+                <TextBlock Text="Systemleistung" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="CPU- und GPU-Werte kommen von verfügbaren Sensoren; RAM wird von Windows gemeldet." Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0" />
+            </StackPanel>
+        </DockPanel>
+
+        <UniformGrid Grid.Row="1" Columns="3" VerticalAlignment="Top">
+            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="CPU" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="{Binding CpuUsage, StringFormat={}{0:0}%}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
+                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Maximum="100" Height="6" Foreground="{StaticResource AccentBrush}" Background="#303641" />
+                    <TextBlock Text="Auslastung" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="6,0">
+                <StackPanel>
+                    <TextBlock Text="GPU" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="{Binding GpuUsage, StringFormat={}{0:0}%}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
+                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Maximum="100" Height="6" Foreground="#52C7B8" Background="#303641" />
+                    <TextBlock Text="{Binding GpuUsageSource, StringFormat={}Sensor: {0}}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="12,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="ARBEITSSPEICHER" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="{Binding MemoryUsage, StringFormat={}{0:0}%}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
+                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Maximum="100" Height="6" Foreground="#E8B45B" Background="#303641" />
+                    <TextBlock Text="{Binding MemorySummary}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+        <Border Grid.Row="2" Margin="0,22,0,0" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,0,8">
+                    <TextBlock Text="Leistungsverlauf" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding SamplingDescription}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,4,0,0" />
+                </StackPanel>
+                <lvc:CartesianChart Grid.Row="1" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
