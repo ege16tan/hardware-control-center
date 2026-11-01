@@ -34,9 +34,10 @@
 - [x] Letzte 60 Messungen im Arbeitsspeicher puffern und Diagramme aktualisieren
 - [ ] Verlauf mit Zeitstempeln dauerhaft speichern
 
-### Phase 4 – Lüftersteuerung
+### Phase 4 – Hardwareübersicht und sichere Steuerung
 
-- [ ] Unterstützte Controller und Geräte erfassen
+- [x] Erkannte Hardware und verfügbare Sensoranzahl in einer reinen Leseansicht anzeigen
+- [ ] Unterstützte Lüftercontroller genauer identifizieren
 - [ ] Lüfterkurven mit Grenzen und Schutzmechanismen implementieren
 - [ ] Steuerung nur für erkannte und unterstützte Hardware freigeben
 
@@ -59,6 +60,13 @@ Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstell
 3. [x] Diagramm mit Zeitachse und Verlauf nach Neustart prüfen; 60 Messpunkte im Dashboard anzeigen.
 4. [x] Intervall (1, 2, 5 oder 10 Sekunden) in den Einstellungen auswählbar machen und für Dashboard sowie Sensorliste gemeinsam nutzen.
 5. [x] Solution bauen, Tests ausführen und App starten; Diagramm und Einstellungen sichtbar prüfen.
+
+### Nächster Feature-Schritt – Hardwareübersicht
+
+- [x] Geräte aus der Hardwareabfrage samt Gerätetyp und Sensoranzahl an die Oberfläche melden
+- [x] Erkannte Hardware und Messwerte in getrennten Abschnitten anzeigen
+- [x] Aktualisierungsstatus an das eingestellte Intervall anpassen
+- [x] Tests und Build erfolgreich ausführen; App-Start und Ansicht vor dem Push prüfen
 
 ### Fertig- und Push-Regel pro Feature
 

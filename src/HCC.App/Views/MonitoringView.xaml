@@ -11,28 +11,50 @@
                 <TextBlock Text="{Binding Status}" Foreground="{StaticResource MutedTextBrush}" Margin="0,8,0,0" />
             </StackPanel>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Sensors}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="8,10">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Hardware}" Foreground="#F2F4F8" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="{StaticResource MutedTextBrush}" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="2" Text="{Binding Type}" Foreground="{StaticResource MutedTextBrush}" />
-                                    <TextBlock Grid.Column="3" Text="{Binding Value, StringFormat={}{0:0.0}}" Foreground="#F2F4F8" Margin="12,0,0,0" />
-                                    <TextBlock Grid.Column="4" Text="{Binding Unit}" Foreground="{StaticResource MutedTextBrush}" Margin="4,0,0,0" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <StackPanel>
+                    <TextBlock Text="Erkannte Hardware" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ItemsControl ItemsSource="{Binding HardwareDevices}" Margin="0,0,0,18">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="8,9">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" Foreground="#F2F4F8" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{StaticResource MutedTextBrush}" Margin="12,0" />
+                                        <TextBlock Grid.Column="2" Text="{Binding SensorCount, StringFormat={}{0} Sensoren}" Foreground="{StaticResource MutedTextBrush}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Messwerte" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ItemsControl ItemsSource="{Binding Sensors}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="8,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Hardware}" Foreground="#F2F4F8" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="{StaticResource MutedTextBrush}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Type}" Foreground="{StaticResource MutedTextBrush}" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Value, StringFormat={}{0:0.0}}" Foreground="#F2F4F8" Margin="12,0,0,0" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Unit}" Foreground="{StaticResource MutedTextBrush}" Margin="4,0,0,0" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </ScrollViewer>
         </DockPanel>
     </Border>

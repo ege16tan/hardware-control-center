@@ -28,6 +28,7 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
     }
 
     public ObservableCollection<HardwareSensorReading> Sensors { get; } = [];
+    public ObservableCollection<HardwareDeviceReading> HardwareDevices { get; } = [];
     public IRelayCommand RefreshCommand { get; }
     public string Status { get => _status; private set => SetProperty(ref _status, value); }
 
@@ -53,11 +54,16 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
             var snapshot = _metricsProvider.ReadCurrent();
             Sensors.Clear();
             foreach (var sensor in snapshot.Sensors ?? []) Sensors.Add(sensor);
-            Status = snapshot.Status ?? (Sensors.Count == 0 ? "Keine unterstützten Sensoren gefunden." : $"{Sensors.Count} Sensoren erkannt · Aktualisierung alle 2 Sekunden");
+            HardwareDevices.Clear();
+            foreach (var device in snapshot.HardwareDevices ?? []) HardwareDevices.Add(device);
+            Status = snapshot.Status ?? (Sensors.Count == 0
+                ? "Keine unterstützten Sensoren gefunden."
+                : $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
         }
         catch (Exception ex)
         {
             Sensors.Clear();
+            HardwareDevices.Clear();
             Status = $"Sensorabfrage fehlgeschlagen: {ex.Message}";
         }
     }

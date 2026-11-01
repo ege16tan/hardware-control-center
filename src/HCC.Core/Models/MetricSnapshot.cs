@@ -9,4 +9,5 @@ public sealed record MetricSnapshot(
     IReadOnlyList<HardwareSensorReading>? Sensors = null,
     bool IsSimulated = false,
     string? Status = null,
-    string? GpuLoadSensorName = null);
+    string? GpuLoadSensorName = null,
+    IReadOnlyList<HardwareDeviceReading>? HardwareDevices = null);

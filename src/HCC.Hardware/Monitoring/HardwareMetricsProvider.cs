@@ -29,6 +29,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
         lock (_sync)
         {
             var sensors = new List<HardwareSensorReading>();
+            var devices = new List<HardwareDeviceReading>();
             double? cpuLoad = null;
             double? gpuLoad = null;
             string? gpuLoadSensorName = null;
@@ -38,7 +39,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             {
                 foreach (var hardware in _computer.Hardware)
                 {
-                    try { ReadHardware(hardware, sensors, ref cpuLoad, ref gpuLoad, ref gpuLoadSensorName, ref gpuLoadSensorScore); }
+                    try { ReadHardware(hardware, sensors, devices, ref cpuLoad, ref gpuLoad, ref gpuLoadSensorName, ref gpuLoadSensorScore); }
                     catch (Exception ex) { _openError = ex.Message; }
                 }
             }
@@ -55,7 +56,8 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             sensors.Add(new HardwareSensorReading("Arbeitsspeicher", "Verfügbar", "Data", availableGb, "GB"));
             return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, memory.MemoryLoad, usedGb, totalGb, sensors,
                 Status: _openError is not null ? $"LibreHardwareMonitor: {_openError}" : cpuLoad is null && gpuLoad is null ? "CPU-/GPU-Auslastung wird von dieser Hardware nicht gemeldet" : null,
-                GpuLoadSensorName: gpuLoadSensorName);
+                GpuLoadSensorName: gpuLoadSensorName,
+                HardwareDevices: devices);
         }
     }
 
@@ -64,9 +66,10 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
         try { _computer.Close(); } catch { /* A failed initialization has nothing to close. */ }
     }
 
-    private static void ReadHardware(IHardware hardware, List<HardwareSensorReading> readings, ref double? cpuLoad, ref double? gpuLoad, ref string? gpuLoadSensorName, ref int gpuLoadSensorScore)
+    private static void ReadHardware(IHardware hardware, List<HardwareSensorReading> readings, List<HardwareDeviceReading> devices, ref double? cpuLoad, ref double? gpuLoad, ref string? gpuLoadSensorName, ref int gpuLoadSensorScore)
     {
         hardware.Update();
+        devices.Add(new HardwareDeviceReading(hardware.Name, hardware.HardwareType.ToString(), hardware.Sensors.Count(s => s.Value is not null)));
         foreach (var sensor in hardware.Sensors)
         {
             if (sensor.Value is not float value) continue;
@@ -95,7 +98,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
                 }
             }
         }
-        foreach (var child in hardware.SubHardware) ReadHardware(child, readings, ref cpuLoad, ref gpuLoad, ref gpuLoadSensorName, ref gpuLoadSensorScore);
+        foreach (var child in hardware.SubHardware) ReadHardware(child, readings, devices, ref cpuLoad, ref gpuLoad, ref gpuLoadSensorName, ref gpuLoadSensorScore);
     }
 
     private static int GetGpuLoadSensorScore(string name)
