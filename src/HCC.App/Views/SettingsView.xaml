@@ -10,7 +10,7 @@
                       SelectedItem="{Binding SelectedRefreshIntervalSeconds, Mode=TwoWay}"
                       Padding="10,7"
                       Background="#292F3A"
-                      Foreground="#F2F4F8"
+                      Foreground="#101216"
                       BorderBrush="{StaticResource CardBorderBrush}" />
             <TextBlock Text="Sekunden zwischen den Messungen (1, 2, 5 oder 10)." Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,7,0,0" />
         </StackPanel>

@@ -9,6 +9,8 @@ using HCC.Infrastructure.Persistence;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
 namespace HCC.App.ViewModels;
 
@@ -42,12 +44,24 @@ public sealed class DashboardViewModel : ObservableObject, IDisposable
         }
         Series =
         [
-            new LineSeries<DateTimePoint> { Name = "CPU", Values = _cpuHistory, GeometrySize = 0, Fill = null },
-            new LineSeries<DateTimePoint> { Name = "GPU", Values = _gpuHistory, GeometrySize = 0, Fill = null },
-            new LineSeries<DateTimePoint> { Name = "RAM", Values = _memoryHistory, GeometrySize = 0, Fill = null },
+            new LineSeries<DateTimePoint> { Name = "CPU", Values = _cpuHistory, GeometrySize = 0, Fill = null, Stroke = CreateStroke(124, 140, 255) },
+            new LineSeries<DateTimePoint> { Name = "GPU", Values = _gpuHistory, GeometrySize = 0, Fill = null, Stroke = CreateStroke(82, 199, 184) },
+            new LineSeries<DateTimePoint> { Name = "RAM", Values = _memoryHistory, GeometrySize = 0, Fill = null, Stroke = CreateStroke(232, 180, 91) },
         ];
-        XAxes = [new DateTimeAxis(TimeSpan.FromSeconds(30), date => date.ToString("HH:mm:ss"))];
-        YAxes = [new Axis { MinLimit = 0, MaxLimit = 100 }];
+        XAxes = [new DateTimeAxis(TimeSpan.FromSeconds(30), date => date.ToString("HH:mm:ss"))
+        {
+            LabelsPaint = CreateTextPaint(),
+            SeparatorsPaint = CreateGridPaint(),
+        }];
+        YAxes = [new Axis
+        {
+            MinLimit = 0,
+            MaxLimit = 100,
+            LabelsPaint = CreateTextPaint(),
+            SeparatorsPaint = CreateGridPaint(),
+        }];
+        ChartLegendTextPaint = CreateTextPaint();
+        ChartLegendBackgroundPaint = new SolidColorPaint(new SKColor(28, 32, 40));
         RefreshCommand = new RelayCommand(Refresh);
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(_settings.RefreshIntervalSeconds) };
         _refreshTimer.Tick += OnRefreshTimerTick;
@@ -97,6 +111,8 @@ public sealed class DashboardViewModel : ObservableObject, IDisposable
     public ISeries[] Series { get; }
     public Axis[] XAxes { get; }
     public Axis[] YAxes { get; }
+    public SolidColorPaint ChartLegendTextPaint { get; }
+    public SolidColorPaint ChartLegendBackgroundPaint { get; }
 
     public void Dispose()
     {
@@ -137,4 +153,12 @@ public sealed class DashboardViewModel : ObservableObject, IDisposable
         history.Add(new DateTimePoint(timestamp, value));
         while (history.Count > HistoryLimit) history.RemoveAt(0);
     }
+
+    private static SolidColorPaint CreateStroke(byte red, byte green, byte blue) =>
+        new(new SKColor(red, green, blue)) { StrokeThickness = 2 };
+
+    private static SolidColorPaint CreateTextPaint() => new(new SKColor(197, 203, 213));
+
+    private static SolidColorPaint CreateGridPaint() =>
+        new(new SKColor(56, 63, 74)) { StrokeThickness = 1 };
 }

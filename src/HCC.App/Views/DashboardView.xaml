@@ -61,7 +61,14 @@
                     <TextBlock Text="Leistungsverlauf" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="{Binding SamplingDescription}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,4,0,0" />
                 </StackPanel>
-                <lvc:CartesianChart Grid.Row="1" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" />
+                <lvc:CartesianChart Grid.Row="1"
+                                    Series="{Binding Series}"
+                                    XAxes="{Binding XAxes}"
+                                    YAxes="{Binding YAxes}"
+                                    Background="#1C2028"
+                                    LegendPosition="Bottom"
+                                    LegendTextPaint="{Binding ChartLegendTextPaint}"
+                                    LegendBackgroundPaint="{Binding ChartLegendBackgroundPaint}" />
             </Grid>
         </Border>
     </Grid>

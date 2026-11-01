@@ -54,11 +54,11 @@
 
 Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstellungen steuerbar machen.
 
-1. [ ] Projektstatus und GitHub-Push-Zugriff prüfen; einen eigenen Sprint-Branch verwenden.
-2. [ ] Messpunkte mit Zeitstempel speichern und beim Start wieder laden; die Datei auf eine begrenzte Historie beschränken.
-3. [ ] Diagramm mit Zeitachse und Verlauf nach Neustart prüfen.
-4. [ ] Monitoring-Intervall in den Einstellungen auswählbar machen und für Dashboard sowie Sensorliste gemeinsam nutzen.
-5. [ ] Solution bauen, Tests ausführen und App starten; Fehler beheben, bevor ein Feature als fertig markiert wird.
+1. [x] Projektstatus und Push-Zugriff prüfen; Sprint-Branch `codex/30min-history-settings` verwenden.
+2. [x] Messpunkte mit Zeitstempel lokal speichern und beim Start wieder laden; Historie auf 7.200 Einträge begrenzen.
+3. [x] Diagramm mit Zeitachse und Verlauf nach Neustart prüfen; 60 Messpunkte im Dashboard anzeigen.
+4. [x] Intervall (1, 2, 5 oder 10 Sekunden) in den Einstellungen auswählbar machen und für Dashboard sowie Sensorliste gemeinsam nutzen.
+5. [x] Solution bauen, Tests ausführen und App starten; Diagramm und Einstellungen sichtbar prüfen.
 
 ### Fertig- und Push-Regel pro Feature
 
