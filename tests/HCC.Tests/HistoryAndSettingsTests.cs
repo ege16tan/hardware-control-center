@@ -52,6 +52,68 @@ public sealed class HistoryAndSettingsTests
         }
     }
 
+    [Fact]
+    public void MonitoringSettings_SavesAppliesAndDeletesNamedProfiles()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var settings = MonitoringSettings.Load(directory);
+            settings.RefreshIntervalSeconds = 5;
+            Assert.True(settings.SaveProfile("Gaming"));
+            settings.RefreshIntervalSeconds = 1;
+
+            var restored = MonitoringSettings.Load(directory);
+            Assert.Contains("Gaming", restored.Profiles);
+            Assert.True(restored.ApplyProfile(" gaming "));
+            Assert.Equal(5, restored.RefreshIntervalSeconds);
+            Assert.True(restored.DeleteProfile("GAMING"));
+            Assert.Empty(restored.Profiles);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("This profile name is longer than thirty-two characters")]
+    public void MonitoringSettings_RejectsInvalidProfileNames(string? name)
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var settings = new MonitoringSettings(directory);
+            Assert.False(settings.SaveProfile(name));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void MonitoringSettings_UsesDefaultsWhenProfileFileIsCorrupt()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(directory, "settings.json"), "{ this is not valid json");
+
+            var settings = MonitoringSettings.Load(directory);
+
+            Assert.Equal(2, settings.RefreshIntervalSeconds);
+            Assert.Empty(settings.Profiles);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), $"hcc-tests-{Guid.NewGuid():N}");

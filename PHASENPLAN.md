@@ -9,7 +9,7 @@
 - [x] Sidebar und funktionierende Navigation bauen
 - [x] Dashboard mit CPU-, GPU- und RAM-Karten erstellen
 - [x] Karten zunächst mit simulierten Testdaten befüllen
-- [ ] Startfähigkeit der Anwendung prüfen
+- [x] Startfähigkeit der Anwendung prüfen
 
 ## Danach – weitere Phasen
 
@@ -32,7 +32,7 @@
 
 - [x] LiveCharts2 integrieren und CPU-, GPU- und RAM-Verlauf anzeigen
 - [x] Letzte 60 Messungen im Arbeitsspeicher puffern und Diagramme aktualisieren
-- [ ] Verlauf mit Zeitstempeln dauerhaft speichern
+- [x] Verlauf mit Zeitstempeln dauerhaft speichern
 
 ### Phase 4 – Hardwareübersicht und sichere Steuerung
 
@@ -43,15 +43,29 @@
 
 ### Phase 5 – Einstellungen und Profile
 
-- [ ] Profile und Monitoring-Intervall speichern und laden
+- [x] Monitoring-Intervall speichern und laden
+- [ ] Benannte Monitoring-Profile speichern, laden und löschen
 - [ ] Autostart und weitere Herstellerunterstützung ergänzen
 - [ ] Logging und Fehlerdiagnose vervollständigen
+
+## MSI Command Center – Funktionsabgleich für H87-G43
+
+Die MSI-Dokumentation beschreibt neben Monitoring auch Profile, CPU-Frequenz/Ratio, CPU-Lüfter im Smart-/Manual-Modus, CPU-/DRAM-Spannung und -Takt, IGP-Tuning, Game Boost/OC Genie, Warnungen, Verlauf und Mobile Control. Das H87-G43 hat zwei CPU- und drei Systemlüfteranschlüsse. Daraus folgt nicht automatisch, dass jeder Anschluss aus Windows sicher steuerbar ist.
+
+- [x] Live-Monitoring, Hardware-/Sensorübersicht und lokal gespeicherter Verlauf
+- [x] Benannte Profile für die hier unterstützten Monitoring-Einstellungen
+- [ ] Warnschwellen für Temperaturen und Sensorwerte mit sichtbarem Alarm
+- [ ] Aufzeichnungssitzungen mit Start/Stopp und auswählbarem Verlauf
+- [ ] Erkennung und sichere Steuerung unterstützter Lüfteranschlüsse
+- [ ] Tuningfunktionen (CPU-/IGP-Takt, Ratio, Spannung, DRAM) nur nach Board-/CPU-Prüfung und mit Schutzgrenzen; bis dahin ausdrücklich nicht freigeben
+- [ ] Mobile/Fernsteuerung erst nach eigener Authentifizierungs- und Netzwerksicherheitsplanung
+- [ ] Systeminformationen und Statusanzeigen mit den MSI-Ansichten abgleichen
 
 ## Optionale Funktionen
 
 - [ ] GPU-Auslastung zusätzlich über Windows-GPU-Engine-Zähler wie im Task-Manager erfassen, um die Werte direkt vergleichen zu können
 
-## Nächster Arbeitssprint – ca. 30 Minuten
+## Erledigter Arbeitssprint – Verlauf und Aktualisierung
 
 Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstellungen steuerbar machen.
 
@@ -67,6 +81,14 @@ Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstell
 - [x] Erkannte Hardware und Messwerte in getrennten Abschnitten anzeigen
 - [x] Aktualisierungsstatus an das eingestellte Intervall anpassen
 - [x] Tests und Build erfolgreich ausführen; App-Start und Ansicht vor dem Push prüfen
+
+### Nächster Arbeitssprint – Monitoring-Profile
+
+1. [x] Profile mit Namen und Aktualisierungsintervall lokal speichern.
+2. [x] Profile in den Einstellungen auswählen, anwenden und löschen.
+3. [x] Ungültige/leere Namen und beschädigte Profildateien sicher behandeln.
+4. [x] Persistenztests (9/9), Build und App-Ansicht prüfen.
+5. [x] Geprüfte Profil-Dateien separat committen und auf den Sprint-Branch pushen.
 
 ### Fertig- und Push-Regel pro Feature
 
