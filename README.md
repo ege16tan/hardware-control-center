@@ -28,9 +28,15 @@ The project aims to provide a modern WPF-based dashboard for live hardware monit
 - System.Text.Json
 - xUnit
 
+## Requirements
+
+- Windows 10/11 (x64)
+- [PawnIO](https://pawnio.eu/) 2.0 or newer. LibreHardwareMonitor 0.9.6 reads motherboard fans, board temperatures and CPU core temperatures through this signed kernel driver. Without it those sensors stay empty and the app explains how to install it.
+- Administrator rights: the PawnIO device only allows SYSTEM and Administrators, so `HCC.App.exe` requests elevation (`src/HCC.App/app.manifest`).
+
 ## Project Status
 
-The WPF dashboard reads CPU/GPU/RAM metrics through a shared background sampler and charts the last 60 valid samples. Up to 7,200 samples are stored locally. CPU/GPU load comes from available LibreHardwareMonitor sensors, while RAM usage comes from Windows. The Monitoring page lists detected devices and their supported readings. Profiles save the monitoring interval and fan curves; a configurable temperature threshold shows a visible alarm. The theme can be switched between dark and light under Settings and is restored on startup. Real fan control remains locked until a channel is verified on the target board. Tuning, recording sessions, and Task Manager-compatible GPU engine counters remain planned.
+The WPF dashboard reads CPU/GPU/RAM metrics through a shared background sampler and charts the last 60 valid samples. Up to 7,200 samples are stored locally. CPU/GPU load comes from available LibreHardwareMonitor sensors, while RAM usage comes from Windows. The Monitoring page lists detected devices and their supported readings. Motherboard sensors are read when PawnIO is installed: on the MSI H87-G43 the Nuvoton NCT6779D Super-I/O reports five fan headers and board temperatures. Profiles save the monitoring interval and fan curves; a configurable temperature threshold shows a visible alarm. The theme can be switched between dark and light under Settings and is restored on startup. Real fan control remains locked until a channel is verified on the target board. Tuning, recording sessions, and Task-Manager-compatible GPU engine counters remain planned.
 
 ## Run and test
 

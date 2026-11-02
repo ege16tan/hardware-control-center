@@ -37,7 +37,7 @@
 ### Phase 4 – Hardwareübersicht und sichere Steuerung
 
 - [x] Erkannte Hardware und verfügbare Sensoranzahl in einer reinen Leseansicht anzeigen
-- [ ] Unterstützte Lüftercontroller genauer identifizieren
+- [x] Unterstützte Lüftercontroller genauer identifizieren
 - [x] Lüfterkurven mit Grenzen und Schutzmechanismen implementieren
 - [ ] Steuerung nur für erkannte und unterstützte Hardware freigeben
 
@@ -96,3 +96,12 @@ Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstell
 - Nach jedem fertig geprüften Feature: dessen Dateien gezielt stagen, einen eigenen Commit erstellen und `git push -u origin <sprint-branch>` ausführen.
 - Bei fehlgeschlagenem Build, Test oder App-Start kein Feature-Push; den letzten lokalen Feature-Commit mit `git revert <commit>` zurücknehmen und erneut prüfen.
 - Nie unbeteiligte oder bereits vorhandene Änderungen in den Feature-Commit aufnehmen. Falls GitHub-Anmeldung fehlt, lokale Commits als Rücksetzpunkte behalten und den Push-Blocker melden.
+
+### Erledigter Arbeitssprint – Ring0-Zugang (PawnIO)
+
+1. [x] Ursache korrigiert: LibreHardwareMonitor 0.9.6 nutzt PawnIO, nicht WinRing0.
+2. [x] PawnIO 2.2.0 (offizielle signierte Edition) auf dem Zielsystem installieren und Signatur prüfen.
+3. [x] App-Manifest auf `requireAdministrator` stellen; PawnIO-Gerätezugriff erlaubt nur Administratoren.
+4. [x] `PawnIoDiagnostics` ergänzen: fehlender/veralteter Treiber erscheint als klarer Handlungshinweis im Snapshot-Status, mit Tests.
+5. [x] Phase A erneut am Board: Status `(ok)`, Nuvoton NCT6779D mit 29 Sensoren, 5 Lüfterkanäle und Control-Werte sichtbar.
+6. [ ] Phase B Schreibtest (nur mit Aufsicht, siehe `LUEFTERSTEUERUNG_PLAN.md`).

@@ -240,7 +240,7 @@ Diese Punkte sind **nicht verifiziert**. Sie müssen in Phase A und B geprüft w
 - **BIOS-Einfluss:** Die BIOS-Einstellung (Smart Fan, Manual, Full Speed) kann Software-Vorgaben überschreiben oder umgekehrt. Das Verhalten muss getestet werden.
 - **Rückfallverhalten bei Absturz:** Ob ein harter Absturz den Software-Wert zurücksetzt, ist nicht geprüft. Die BIOS-Automatik bleibt in diesem Fall die Sicherheitsebene, wenn sie korrekt konfiguriert ist.
 - **Temperatursensoren:** Die Verfügbarkeit eines CPU-Package-Sensors für dieses Board ist nicht bestätigt.
-- **Treiber:** LibreHardwareMonitor verwendet einen Kernel-Treiber für Hardwarezugriff. Das kann auf manchen Systemen durch Virenschutz oder Sicherheitsrichtlinien blockiert werden.
+- **Treiber:** LibreHardwareMonitor 0.9.6 liest Super-I/O und CPU-MSR über **PawnIO**. Der Treiber muss installiert sein (Version 2.0+, <https://pawnio.eu/>) und die App als Administrator laufen — sonst bleiben genau diese Sensoren ohne Fehlermeldung leer. Am MSI H87-G43 verifiziert (NCT6779D, 5 Lüfterkanäle).
 - **Fernsteuerung und Tuning:** Nicht Teil dieses Plans, bleibt gesperrt (siehe `PHASENPLAN.md`).
 
 ---
@@ -249,7 +249,7 @@ Diese Punkte sind **nicht verifiziert**. Sie müssen in Phase A und B geprüft w
 
 Die Lüftersteuerung gilt erst als fertig, wenn alle Punkte erfüllt sind:
 
-- [ ] Phase A: Diagnosebericht vom Zielboard liegt vor
+- [x] Phase A: Diagnosebericht vom Zielboard liegt vor (NCT6779D, 29 Sensoren, 5 Lüfterkanäle; siehe `docs/hardware-verification-h87-g43.md`)
 - [ ] Phase B: Jeder aktivierbare Kanal ist auf dem Board getestet und dokumentiert
 - [ ] Build ohne Fehler (`dotnet build`)
 - [ ] Alle Tests grün (`dotnet test`), inklusive der neuen Tests aus Abschnitt 8

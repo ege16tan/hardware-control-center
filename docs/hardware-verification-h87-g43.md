@@ -1,107 +1,124 @@
 # Hardware-Verifikation MSI H87-G43
 
-**Datum:** 2026-11-02
+**Datum:** 2026-11-02 (Phase A erneut nach Treiberinstallation)
 **Board:** MSI H87-G43 (MS-7816)
 **CPU:** Intel Core i7-4770
 **GPU:** NVIDIA GeForce GTX 1060 6GB
-**Tool:** LibreHardwareMonitorLib 0.9.6, .NET 10.0.403
-**Ergebnis:** ❌ Phase A (Lesen) nicht bestanden — der Motherboard-Super-I/O liefert 0 Sensoren.
+**Tool:** LibreHardwareMonitorLib 0.9.6, .NET 10.0.403, PawnIO 2.2.0
+**Ergebnis:** ✅ Phase A (Lesen) bestanden — Super-I/O liefert 29 Sensoren und
+6 Lüfterkanäle.
 
 ---
 
 ## 1. Zusammenfassung
 
-Die App kommuniziert derzeit **nicht** mit dem Motherboard. LibreHardwareMonitor
-erkennt das Board (Name „MSI H87-G43 (MS-7816)"), liest daraus aber **keinen einzigen
-Sensor**. Alle Temperatur- und Lüfterdaten des Boards sowie die CPU-Kerntemperatur
-fehlen. Nur die GPU (über NVAPI, ohne Kernel-Treiber) liefert Messwerte.
+Nach der Installation von **PawnIO 2.2.0** (offizielle, signierte Version) liest
+LibreHardwareMonitor das Board vollständig:
 
-Ursache ist nicht der Code und nicht ein fehlendes Admin-Recht, sondern der blockierte
-Kernel-Treiber von LibreHardwareMonitor (WinRing0). Bis das geklärt ist, bleiben alle
-Kanäle gesperrt (`MonitorOnly`/`ControlCandidate`), und `LhmFanController` schreibt
-weiterhin nichts.
+- Der Super-I/O-Chip ist ein **Nuvoton NCT6779D** (29 Sensoren).
+- **5 Lüfterkanäle** (Fan #1–#5) mit Drehzahl und Steuerwert sind sichtbar.
+- Die **CPU-Kerntemperaturen** kommen jetzt über MSR (35 Sensoren, u. a.
+  `CPU Package` und `Core Max`).
+- Alle Geräte melden im Normalzustand keinen Fehler (`Status: (ok)`).
+
+Alle Kanäle bleiben trotzdem `ControlCandidate` — gelesen heißt nicht verifiziert.
+Der Schreibtest (Phase B) ist noch nicht durchgeführt.
 
 ---
 
-## 2. Fehlerlog (Messung)
+## 2. Ursache (korrigiert gegenüber der ersten Messung)
 
-Zwei Läufe mit identischem Ergebnis — einmal normal, einmal **mit Admin-Rechten (UAC)**.
-Admin ändert nichts.
+Die erste Messung (0 Sensoren am Mainboard) wurde dem blockierten
+**WinRing0**-Treiber zugeschrieben. Das war für ältere
+LibreHardwareMonitor-Versionen richtig, gilt aber für 0.9.6 nicht mehr:
+
+- Aufruf PR [#1857](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/pull/1857)
+  hat WinRing0 durch **PawnIO** ersetzt; seit **v0.9.5** gibt es keinen
+  WinRing0-Code mehr in der Bibliothek.
+- LibreHardwareMonitor 0.9.6 liefert die PawnIO-Module (`LpcIO.bin`,
+  `IntelMSR.bin`, …) **eingebettet** mit und lädt sie erst zur Laufzeit in den
+  PawnIO-Treiber. Ohne installierten Treiber bleiben alle Ring0-Sensoren leer,
+  **ohne Fehlermeldung**.
+- Der PawnIO-Gerätezugriff ist auf **SYSTEM und Administratoren** beschränkt
+  (Security-Descriptor der Treiber-INF). HCC läuft deshalb seit dieser Änderung
+  über `src/HCC.App/app.manifest` mit `requireAdministrator`.
+
+Fachliche Einordnung: Das Board war nie defekt, es fehlte nur der Treiber.
+
+---
+
+## 3. Messung nach der Installation
 
 ```
 Status: (ok)
 --- Devices ---
-MSI H87-G43 (MS-7816)      Motherboard   sensors=0   <-- hier fehlt alles
-Intel Core i7-4770         Cpu           sensors=14  (nur Load/Power, keine Temperatur)
+MSI H87-G43 (MS-7816)      Motherboard   sensors=0    (Sensoren hängen am Super-I/O)
+Nuvoton NCT6779D           SuperIO       sensors=29
+Intel Core i7-4770         Cpu           sensors=35
 Virtual Memory             Memory        sensors=3
 Total Memory               Memory        sensors=3
-NVIDIA GeForce GTX 1060    GpuNvidia     sensors=30  (Temp/Fan/Control vorhanden)
+NVIDIA GeForce GTX 1060    GpuNvidia     sensors=30
 ```
 
-Gelesene Temperatur-/Lüfter-/Steuerwerte:
+Lüfterkanäle (Messung 2026-11-02 18:01, System unter Last durch Build/Tests):
 
-```
-NVIDIA GeForce GTX 1060 6GB  Temperature  GPU Core        ~52 °C
-NVIDIA GeForce GTX 1060 6GB  Fan          GPU               0 RPM
-NVIDIA GeForce GTX 1060 6GB  Control      GPU Fan           0 %
-NVIDIA GeForce GTX 1060 6GB  Temperature  GPU Hot Spot    ~60 °C
-```
-
-Muster: Alles, was einen Kernel-Treiber (Ring0) braucht, ist tot. Alles, was ohne
-Treiber geht, funktioniert.
-
-| Braucht Ring0-Treiber | Zustand | Braucht keinen Treiber | Zustand |
+| Kanal | Drehzahl | Steuerwert (BIOS/Board) | Status im Code |
 |---|---|---|---|
-| Super-I/O (Lüfter, Boardtemp) | ❌ 0 Sensoren | CPU-Load % | ✅ ~94 % |
-| CPU-Kerntemperatur (MSR) | ❌ fehlt | GPU (NVAPI) | ✅ |
-| CPU-Power (RAPL) | ❌ 0 W | RAM | ✅ |
+| Fan #1 | 0 RPM | 84,7 % | `ControlCandidate` |
+| Fan #2 | 2116 RPM | 80,0 % | `ControlCandidate` |
+| Fan #3 | 0 RPM | 60,0 % | `ControlCandidate` |
+| Fan #4 | 1133 RPM | 100,0 % | `ControlCandidate` |
+| Fan #5 | 0 RPM | 60,0 % | `ControlCandidate` |
+| GPU (NVAPI) | 1454 RPM | 59,0 % | `ControlCandidate` |
 
-Kein WinRing0-/inpout-Treiber ist als Dienst installiert oder geladen.
+Weitere gelesene Werte: `CPU Package` 64 °C, `Core Max` 63 °C,
+GPU Core 81 °C, GPU Hot Spot 89,2 °C, Board-Temperaturen 21–35 °C.
+
+**Offene Punkte aus dieser Messung:**
+
+- Fan #1/#3/#5 zeigen 0 RPM — entweder nicht angeschlossen oder unter der
+  Anlaufdrehzahl. Vor jeder Steuerung am Board prüfen.
+- `Temperature #6` zeigt konstant 91 °C und ist fachlich unplausibel (kein
+  zugeordneter Sensor). Nicht als Alarmquelle verwenden, bis die Zuordnung am
+  Board geklärt ist.
+- Die Steuerwerte sind der vom Board gemeldete Zustand; HCC hat nichts
+  geschrieben.
 
 ---
 
-## 3. Ursache
+## 4. Code- und Setup-Änderungen
 
-LibreHardwareMonitor greift für Super-I/O und CPU-MS-Register über den **WinRing0**-
-Treiber zu. Dieser Treiber wird von Windows seit ca. 2023 über die *Vulnerable Driver
-Blocklist* blockiert (Microsoft Defender meldet ihn als
-[`VulnerableDriver:WinNT/Winring0`](https://support.microsoft.com/fr-fr/windows/security/threat-malware-protection/microsoft-defender-antivirus-alert-vulnerabledriver-winnt-winring0)).
-
-Deshalb hilft „als Administrator ausführen" nicht: Es ist eine Treibersperre, keine
-Rechtefrage. FanControl ist aus demselben Grund auf einen neuen Treiber
-([PawnIO](https://github.com/Rem0o/FanControl.Releases/discussions/3494)) umgestiegen.
-
----
-
-## 4. Was geändert werden muss, damit es geht
-
-1. **Gegenprobe HWiNFO64** (eigener, signierter, nicht blockierter Treiber).
-   Liest HWiNFO die Board-Lüfter/Temps → Board ist gesund, es liegt 100 % am
-   WinRing0-Treiber.
-2. **Ring0-Treiber ersetzen** — z. B. PawnIO oder ein anderer signierter, nicht
-   blockierter Treiber. Damit funktioniert zuerst das Lesen; die Steuerung nutzt
-   später dieselben, öffentlich dokumentierten NCT-Register (Datenblatt, kein
-   Reverse Engineering).
-3. **Nicht empfohlen:** Secure Boot aus oder die Vulnerable-Driver-Blocklist
-   deaktivieren, um WinRing0 wieder zu laden. Das ist ein Sicherheits-Rückbau.
-
-Nach einem erfolgreichen Schritt 2 ist **Phase A erneut** zu fahren (Diagnoseausgabe,
-siehe `LUEFTERSTEUERUNG_PLAN.md`). Erst wenn Super-I/O, Lüfterheader und
-Control-Sensoren sichtbar sind, ist **Phase B** (Schreibtest auf dem Board) möglich.
+- `src/HCC.Hardware/Monitoring/PawnIoDiagnostics.cs` — erkennt PawnIO-Version,
+  Meldet fehlenden/veralteten Treiber, wenn Mainboard und Super-I/O ohne
+  Sensoren bleiben; Tests in `tests/HCC.Tests/PawnIoDiagnosticsTests.cs`.
+- `src/HCC.Hardware/Monitoring/HardwareMetricsProvider.cs` — der Status des
+  Snapshots enthält bei fehlendem Treiber einen konkreten Handlungshinweis.
+- `src/HCC.App/app.manifest` + `HCC.App.csproj` — `requireAdministrator`, weil
+  der PawnIO-Gerätezugriff Adminrechte verlangt.
+- `README.md`, `DEVELOPMENT_SETUP.md` — PawnIO als Voraussetzung dokumentiert.
 
 ---
 
 ## 5. Status der Kanäle
 
-- Alle Kanäle bleiben `MonitorOnly`/`ControlCandidate` — kein Kanal ist `ControlVerified`.
-- `LhmFanController.SetPercent` und `.Reset` werfen weiterhin `NotSupportedException`.
-- Die UI zeigt weiterhin „Steuerung gesperrt".
+- Alle Kanäle bleiben `ControlCandidate` — kein Kanal ist `ControlVerified`.
+- `LhmFanController.SetPercent` und `.Reset` werfen weiterhin
+  `NotSupportedException`.
+- Die UI zeigt weiterhin „Steuer-Sensor erkannt · nicht verifiziert“.
+
+Nächster Schritt ist **Phase B** aus `LUEFTERSTEUERUNG_PLAN.md`: Schreibtest auf
+einem Kanal mit Aufsicht, zweites Temperatur-Monitoring, Rückfall auf
+BIOS-Automatik. Erst danach darf ein Kanal `ControlVerified` werden.
 
 ---
 
 ## 6. Referenzen
 
-- `LUEFTERSTEUERUNG_PLAN.md` — Phasen A–D, Abschnitt 9 (Einschränkungen), Abschnitt 4.3 (Doku-Ablage)
+- `LUEFTERSTEUERUNG_PLAN.md` — Phasen A–D, Abschnitt 9 (Einschränkungen),
+  Abschnitt 4.3 (Doku-Ablage)
 - `PHASENPLAN.md` — Gesamtprojekt
-- Microsoft: [WinNT/Winring0 Vulnerable Driver](https://support.microsoft.com/fr-fr/windows/security/threat-malware-protection/microsoft-defender-antivirus-alert-vulnerabledriver-winnt-winring0)
-- FanControl: [PawnIO-Installation](https://github.com/Rem0o/FanControl.Releases/discussions/3494)
+- `docs/ring0-treiber-integration.md` — Treiber-Handoff
+- PawnIO: <https://pawnio.eu/> ·
+  [Installation](https://github.com/namazso/PawnIO.Setup/releases/latest/download/PawnIO_setup.exe)
+- LibreHardwareMonitor PR #1857 (WinRing0 → PawnIO):
+  <https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/pull/1857>

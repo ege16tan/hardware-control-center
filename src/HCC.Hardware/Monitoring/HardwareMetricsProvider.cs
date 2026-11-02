@@ -9,6 +9,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
 {
     private readonly object _sync = new();
     private readonly FanDiscoveryService _fanDiscoveryService = new();
+    private readonly Version? _pawnIoVersion;
     private string? _initializationError;
     private readonly Computer _computer = new()
     {
@@ -21,6 +22,9 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
 
     public HardwareMetricsProvider()
     {
+        // Read once: LHM loads its PawnIO modules when the computer opens, so a
+        // driver installed later only helps after an application restart.
+        _pawnIoVersion = PawnIoDiagnostics.GetInstalledVersion();
         try { _computer.Open(); }
         catch (Exception ex) { _initializationError = ex.Message; }
     }
@@ -47,11 +51,12 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             }
 
             var fanChannels = _fanDiscoveryService.Discover(sensors);
+            var boardSensorIssue = PawnIoDiagnostics.DescribeMissingBoardSensors(devices, _pawnIoVersion);
 
             var memory = new MemoryStatusEx { Length = (uint)Marshal.SizeOf<MemoryStatusEx>() };
             if (!GlobalMemoryStatusEx(ref memory))
                 return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, 0, 0, 0, sensors,
-                    Status: "Windows-Speicherwerte nicht verfügbar",
+                    Status: boardSensorIssue ?? "Windows-Speicherwerte nicht verfügbar",
                     GpuLoadSensorName: gpuLoadSensorName,
                     HardwareDevices: devices,
                     CpuAvailable: cpuLoad.HasValue,
@@ -68,6 +73,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, memory.MemoryLoad, usedGb, totalGb, sensors,
                 Status: _initializationError is not null ? $"LibreHardwareMonitor konnte nicht gestartet werden: {_initializationError}"
                     : hardwareReadError is not null ? $"Ein Hardwaregerät konnte nicht gelesen werden: {hardwareReadError}"
+                    : boardSensorIssue is not null ? boardSensorIssue
                     : cpuLoad is null && gpuLoad is null ? "CPU-/GPU-Auslastung wird von dieser Hardware nicht gemeldet"
                     : cpuLoad is null || gpuLoad is null ? "Ein CPU- oder GPU-Auslastungssensor wird nicht gemeldet"
                     : null,
