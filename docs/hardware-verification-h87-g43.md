@@ -1,12 +1,13 @@
 # Hardware-Verifikation MSI H87-G43
 
-**Datum:** 2026-11-02 (Phase A erneut nach Treiberinstallation)
+**Datum:** 2026-11-02 (Phase A nach Treiberinstallation, Phase B mit Aufsicht)
 **Board:** MSI H87-G43 (MS-7816)
 **CPU:** Intel Core i7-4770
 **GPU:** NVIDIA GeForce GTX 1060 6GB
 **Tool:** LibreHardwareMonitorLib 0.9.6, .NET 10.0.403, PawnIO 2.2.0
 **Ergebnis:** ✅ Phase A (Lesen) bestanden — Super-I/O liefert 29 Sensoren und
-6 Lüfterkanäle.
+6 Lüfterkanäle. ✅ Phase B (Schreiben) bestanden — Fan #2 und Fan #4 reagieren auf
+Software-Steuerung, der Rückfall auf BIOS-Automatik funktioniert.
 
 ---
 
@@ -21,8 +22,10 @@ LibreHardwareMonitor das Board vollständig:
   `CPU Package` und `Core Max`).
 - Alle Geräte melden im Normalzustand keinen Fehler (`Status: (ok)`).
 
-Alle Kanäle bleiben trotzdem `ControlCandidate` — gelesen heißt nicht verifiziert.
-Der Schreibtest (Phase B) ist noch nicht durchgeführt.
+Alle Kanäle bleiben im Code `ControlCandidate` — gelesen heißt nicht verifiziert.
+Der Schreibtest (Phase B) ist durchgeführt: Fan #2 und Fan #4 haben nachweislich
+reagiert, Fan #1/#3/#5 nicht. Die Verifikationsdaten werden erst mit Phase C als
+Allowlist in den Code übernommen.
 
 ---
 
@@ -86,7 +89,49 @@ GPU Core 81 °C, GPU Hot Spot 89,2 °C, Board-Temperaturen 21–35 °C.
 
 ---
 
-## 4. Code- und Setup-Änderungen
+## 4. Phase B – Schreibtest (2026-11-02, mit Aufsicht)
+
+Getestet über die LibreHardwareMonitor-API (`ISensor.Control.SetSoftware` /
+`SetDefault`), nicht über die App. Alle fünf Kanäle wurden gleichzeitig auf
+**40 %** gesetzt (Sicherheitsgrenze; darunter drohen Lüfter-Stillstand), 10 s
+gehalten und danach automatisch per `SetDefault()` auf BIOS-Automatik
+zurückgestellt. Der Rechner lief im Leerlauf, die CPU-Temperatur wurde
+währenddessen mitgelesen; der Test hätte bei über 85 °C sofort abgebrochen.
+
+| Kanal | Vorher | Bei 40 % (Software) | Nach Rückfall | Bewertung |
+|---|---|---|---|---|
+| Fan #2 | 1802 RPM | 1261–1546 RPM | 1847 RPM | ✅ reagiert, verifiziert |
+| Fan #4 | 1086 RPM | 616–912 RPM | 875 RPM | ✅ reagiert, verifiziert |
+| Fan #1 | 0 RPM | 0 RPM | 0 RPM | ⚠️ kein Lüfter erkennbar, nicht verifizierbar |
+| Fan #3 | 0 RPM | 0 RPM | 0 RPM | ⚠️ kein Lüfter erkennbar, nicht verifizierbar |
+| Fan #5 | 0 RPM | 0 RPM | 0 RPM | ⚠️ kein Lüfter erkennbar, nicht verifizierbar |
+
+- Der Schreibwert wurde auf allen fünf Kanälen übernommen (`ControlMode: Software`,
+  Steuerwert 40 %).
+- Nur Fan #2 und Fan #4 zeigten eine physikalische Reaktion an der Drehzahl.
+- `SetDefault()` setzte alle fünf Kanäle zurück (`ControlMode: Default`); die
+  Drehzahlen liefen wieder in die BIOS-Kurve (Fan #2 von 1256 auf 1847 RPM,
+  Fan #4 von 632 auf 875 RPM).
+- `CPU Package` blieb während des gesamten Tests bei 54–60 °C.
+- Der Test hat nichts dauerhaft verändert; alle Kanäle sind wieder in
+  BIOS-Automatik.
+
+**Nicht getestet / Restrisiko:**
+
+- **Prozess-Absturz:** Der LibreHardwareMonitor-Quellcode setzt beim Schließen
+  (`Close`) die Software-Steuerung nicht zurück; ein harter Absturz während
+  einer aktiven Steuerung würde den letzten Prozentwert stehen lassen. Das wurde
+  am Board bewusst nicht provoziert. Die BIOS-Automatik ist erst nach einem
+  Neustart wieder die Sicherheitsebene. Die App muss deshalb in
+  `Dispose`/`try/finally` zwingend zurücksetzen.
+- **Rückfall bei normalem Beenden** wird geprüft, sobald der Schreibpfad in der
+  App implementiert ist.
+- **Zuordnung der Anschlüsse:** Ob Fan #2 z. B. `CPUFAN1/2` und Fan #4 `SYSFAN*`
+  ist, ist nicht bestätigt. Im BIOS/MSI Command Center abgleichen.
+
+---
+
+## 5. Code- und Setup-Änderungen
 
 - `src/HCC.Hardware/Monitoring/PawnIoDiagnostics.cs` — erkennt PawnIO-Version,
   Meldet fehlenden/veralteten Treiber, wenn Mainboard und Super-I/O ohne
@@ -99,20 +144,24 @@ GPU Core 81 °C, GPU Hot Spot 89,2 °C, Board-Temperaturen 21–35 °C.
 
 ---
 
-## 5. Status der Kanäle
+## 6. Status der Kanäle
 
-- Alle Kanäle bleiben `ControlCandidate` — kein Kanal ist `ControlVerified`.
-- `LhmFanController.SetPercent` und `.Reset` werfen weiterhin
-  `NotSupportedException`.
-- Die UI zeigt weiterhin „Steuer-Sensor erkannt · nicht verifiziert“.
+- **Fan #2 und Fan #4** sind auf dem Board als schreibbar und wirksam
+  verifiziert (Abschnitt 4).
+- **Fan #1/#3/#5** haben die Schreib-API akzeptiert, aber keine Reaktion gezeigt.
+  Sie bleiben unverifiziert (`ControlCandidate`).
+- **Im Code bleibt vorerst alles gesperrt**: `LhmFanController` wirft weiterhin
+  `NotSupportedException`, alle Kanäle erscheinen als `ControlCandidate`. Die
+  Verifikationsdaten wandern erst mit dem Schreibpfad (Phase C) als Allowlist in
+  den Code — inklusive Mindestwert und Rücksetzen bei `Dispose`.
+- `Temperature #6` (91 °C) bleibt unplausibel und darf keine Alarmquelle sein.
 
-Nächster Schritt ist **Phase B** aus `LUEFTERSTEUERUNG_PLAN.md`: Schreibtest auf
-einem Kanal mit Aufsicht, zweites Temperatur-Monitoring, Rückfall auf
-BIOS-Automatik. Erst danach darf ein Kanal `ControlVerified` werden.
+Nächster Schritt ist **Phase C**: `LhmFanController` mit Allowlist für Fan #2/#4,
+Rücksetzen bei `Dispose` und Tests mit Fakes.
 
 ---
 
-## 6. Referenzen
+## 7. Referenzen
 
 - `LUEFTERSTEUERUNG_PLAN.md` — Phasen A–D, Abschnitt 9 (Einschränkungen),
   Abschnitt 4.3 (Doku-Ablage)

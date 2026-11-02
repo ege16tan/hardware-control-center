@@ -1,7 +1,8 @@
 # Ring0-Treiber-Integration — Stand nach Umsetzung
 
-**Status:** ✅ Abgeschlossen am 2026-11-02. Der Treiberzugang steht, Phase A
-(Lesen) ist am Zielboard bestanden. Offen ist nur noch Phase B (Schreibtest).
+**Status:** ✅ Treiberzugang und Hardware-Verifikation abgeschlossen am
+2026-11-02. Phase A (Lesen) und Phase B (Schreibtest mit Aufsicht) sind am
+Zielboard bestanden. Offen ist Phase C: der gesperrte Schreibpfad in der App.
 
 ---
 
@@ -91,11 +92,18 @@ Code einfügen → `dotnet build` → EXE über
 
 ## 6. Offen (nächster Schritt)
 
-1. **Phase B** (Schreibtest) aus `LUEFTERSTEUERUNG_PLAN.md`: ein Kanal,
-   Aufsicht, zweites Temperatur-Monitoring, Rückfall auf BIOS-Automatik.
-   Bis dahin bleiben alle Kanäle `ControlCandidate` und gesperrt.
-2. Vor dem Schreiben auf dem Board klären: Fan #1/#3/#5 ohne RPM, `Temperature #6`
-   (91 °C, unplausibel).
-3. Beim späteren Schreibzugriff die ISA-Bus-Mutex
-   `\BaseNamedObjects\Access_ISABUS.HTP.Method` beachten, damit HCC und
-   BIOS-Tools sich nicht in die Quere kommen.
+1. **Phase B ist abgeschlossen** (2026-11-02, mit Aufsicht): Alle fünf Kanäle
+   akzeptierten 40 % Software-Steuerung, Fan #2 und Fan #4 reagierten an der
+   Drehzahl (1261 bzw. 616 RPM), `SetDefault()` brachte alle Kanäle in die
+   BIOS-Automatik zurück. Fan #1/#3/#5 blieben bei 0 RPM und sind nicht
+   verifizierbar. Details: `docs/hardware-verification-h87-g43.md`.
+2. **Phase C:** `LhmFanController` mit Allowlist für Fan #2/#4, Mindestwert,
+   Rücksetzen in `Dispose`/`try/finally` und Tests mit Fakes. Bis dahin bleiben
+   alle Kanäle im Code gesperrt.
+3. **Restrisiko Absturz:** LibreHardwareMonitor setzt die Software-Steuerung
+   beim Schließen nicht zurück. Ein App-Absturz lässt den letzten Wert stehen;
+   die BIOS-Automatik greift erst nach Neustart. Das muss die Steuerung durch
+   explizites Zurücksetzen und einen Notfall-Rückfall abdecken.
+4. **Zuordnung der Anschlüsse** (Fan #2/#4 → CPUFAN/SYSFAN) im BIOS abgleichen;
+   beim späteren Schreibzugriff zusätzlich die ISA-Bus-Mutex
+   `\BaseNamedObjects\Access_ISABUS.HTP.Method` beachten.

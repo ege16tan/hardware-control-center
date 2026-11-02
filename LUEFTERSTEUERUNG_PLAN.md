@@ -250,7 +250,7 @@ Diese Punkte sind **nicht verifiziert**. Sie müssen in Phase A und B geprüft w
 Die Lüftersteuerung gilt erst als fertig, wenn alle Punkte erfüllt sind:
 
 - [x] Phase A: Diagnosebericht vom Zielboard liegt vor (NCT6779D, 29 Sensoren, 5 Lüfterkanäle; siehe `docs/hardware-verification-h87-g43.md`)
-- [ ] Phase B: Jeder aktivierbare Kanal ist auf dem Board getestet und dokumentiert
+- [x] Phase B: Jeder aktivierbare Kanal ist auf dem Board getestet und dokumentiert (Fan #2 und Fan #4 reagieren auf 40 %, Rückfall auf BIOS-Automatik bestätigt; Fan #1/#3/#5 ohne Lüfterreaktion, bleiben unverifiziert; siehe `docs/hardware-verification-h87-g43.md`)
 - [ ] Build ohne Fehler (`dotnet build`)
 - [ ] Alle Tests grün (`dotnet test`), inklusive der neuen Tests aus Abschnitt 8
 - [ ] App startet, Ansicht „Lüftersteuerung“ ist sichtbar

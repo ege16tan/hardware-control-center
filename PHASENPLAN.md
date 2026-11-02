@@ -104,4 +104,4 @@ Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstell
 3. [x] App-Manifest auf `requireAdministrator` stellen; PawnIO-Gerätezugriff erlaubt nur Administratoren.
 4. [x] `PawnIoDiagnostics` ergänzen: fehlender/veralteter Treiber erscheint als klarer Handlungshinweis im Snapshot-Status, mit Tests.
 5. [x] Phase A erneut am Board: Status `(ok)`, Nuvoton NCT6779D mit 29 Sensoren, 5 Lüfterkanäle und Control-Werte sichtbar.
-6. [ ] Phase B Schreibtest (nur mit Aufsicht, siehe `LUEFTERSTEUERUNG_PLAN.md`).
+6. [x] Phase B Schreibtest mit Aufsicht: alle Kanäle auf 40 %, Fan #2 und Fan #4 reagieren an der Drehzahl, Rückfall auf BIOS-Automatik bestätigt; Fan #1/#3/#5 ohne Lüfterreaktion, bleiben unverifiziert.
