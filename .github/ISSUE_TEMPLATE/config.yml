@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Security report
+    url: https://github.com/ege16tan/hardware-control-center/security/advisories/new
+    about: Report vulnerabilities privately, not as a public issue.
+  - name: Verified hardware state
+    url: https://github.com/ege16tan/hardware-control-center/blob/main/docs/hardware-verification-h87-g43.md
+    about: Read the measured Phase A/B results before requesting fan control for a channel.

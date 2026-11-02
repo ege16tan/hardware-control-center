@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest an improvement or a new capability.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please keep the hardware-safety rules in mind: fan control is only enabled
+        for channels verified on the target board.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+      description: Describe the use case, not only the proposed solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Monitoring / sensors
+        - Fan diagnostics and control
+        - UI / theming
+        - Settings and persistence
+        - Documentation
+        - Build / tooling
+        - Other
+    validations:
+      required: true

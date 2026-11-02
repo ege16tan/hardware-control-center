@@ -1,0 +1,91 @@
+name: Bug report
+description: Something does not work as expected (app, monitoring, sensors, settings).
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Do **not** include personal paths, serial numbers or
+        other sensitive data. For security issues use the Security tab instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behaviour and any error message.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start HCC as administrator
+        2. Open ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: HCC version / commit
+      placeholder: main @ a77080d
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11
+        - Windows 10
+        - Other (please describe)
+    validations:
+      required: true
+
+  - type: input
+    id: board
+    attributes:
+      label: Mainboard / Super-I/O chip
+      placeholder: MSI H87-G43 (Nuvoton NCT6779D)
+    validations:
+      required: false
+
+  - type: input
+    id: pawnio
+    attributes:
+      label: PawnIO version (if installed)
+      placeholder: 2.2.0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: admin
+    attributes:
+      label: Was HCC started as administrator?
+      options:
+        - "Yes"
+        - "No"
+        - "Unsure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / status messages
+      description: Paste the status line from the Monitoring page or relevant build/test output.
+      render: text
+    validations:
+      required: false

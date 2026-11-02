@@ -1,30 +1,47 @@
 # Entwicklungsumgebung
 
-## Bevorzugtes Werkzeug
-
-Visual Studio Code ist der bevorzugte Editor für dieses Projekt. Die Anwendung ist eine Windows-WPF-Anwendung und kann mit dem .NET SDK über das Terminal gebaut werden.
+Hardware Control Center ist eine Windows-WPF-Anwendung (.NET 10). Bauen und
+Testen funktionieren ohne angeschlossene Hardware; für echte Sensoren und
+Lüftertests gelten die zusätzlichen Voraussetzungen unten.
 
 ## Benötigte Werkzeuge
 
-| Werkzeug | Zweck | Status auf diesem Rechner |
+| Werkzeug | Zweck | Pflicht |
 |---|---|---|
-| Visual Studio Code | Code bearbeiten; bevorzugter Editor | Launcher `code` gefunden. Erweiterungen konnten nicht geprüft werden. |
-| .NET 10 SDK | WPF-Projekt erstellen, bauen und testen | Installiert – `dotnet --list-sdks` meldet .NET SDK 10.0.403. |
-| Git | Versionsverwaltung | Installiert; `git --version` meldet Version 2.56.0. |
-| PawnIO 2.0+ | Ring0-Zugriff für Mainboard-, Lüfter- und CPU-Kerntemperatur-Sensoren (LibreHardwareMonitor 0.9.6) | Installiert am 2026-11-02 (2.2.0, signiert). HCC.App fordert beim Start Administratorrechte an. |
+| [.NET 10 SDK](https://dotnet.microsoft.com/download) | Bauen und Testen; `global.json` pinnt SDK 10.0.403 | ja |
+| Git | Versionsverwaltung | ja |
+| Visual Studio Code + C# Dev Kit oder Visual Studio 2026 (.NET-Desktopentwicklung) | Entwicklung | empfohlen |
+| [PawnIO](https://pawnio.eu/) 2.0+ (signiert) | Mainboard-, Lüfter- und CPU-Kerntemperatur-Sensoren über LibreHardwareMonitor | nur für echte Hardware |
 
-Empfohlene VS-Code-Erweiterung: **C# Dev Kit** (vom Nutzer als installiert bestätigt).
+PawnIO wird **nicht** mitgeliefert. Die App erkennt den Treiber und zeigt einen
+Installationshinweis, wenn er fehlt. Der Zugriff auf das PawnIO-Gerät ist auf
+Administratoren beschränkt, deshalb fordert `HCC.App.exe` beim Start
+Administratorrechte an.
 
-Visual Studio 2026 mit der Workload **.NET-Desktopentwicklung** ist eine Alternative für die Entwicklung mit der Visual-Studio-IDE, aber nicht zusätzlich erforderlich, wenn VS Code und das .NET SDK verwendet werden. Visual Studio wurde nicht im PATH oder an den üblichen Installationspfaden gefunden; die Installation konnte daher nicht bestätigt werden.
+## Erste Schritte
 
-## Ergebnis der Prüfung
+```powershell
+git clone https://github.com/ege16tan/hardware-control-center.git
+cd hardware-control-center
+dotnet restore .\HardwareControlCenter.sln
+dotnet build .\HardwareControlCenter.sln
+dotnet test .\HardwareControlCenter.sln
+```
 
-Der Nutzer hat die Installation von .NET SDK 10.0.403, VS Code und C# Dev Kit bestätigt. Git war bei der ersten Prüfung verfügbar. Das SDK wurde in der aktuellen Entwicklungsumgebung ebenfalls erkannt.
+Anwendung starten (fragt nach Administratorrechten):
 
-## Setup-Checkliste
+```powershell
+dotnet run --project .\src\HCC.App\HCC.App.csproj
+```
 
-- [x] .NET 10 SDK installieren
-- [x] VS Code öffnen und die Erweiterung C# Dev Kit installieren oder deren Installation prüfen
-- [x] Git verfügbar
-- [x] PawnIO 2.0+ installieren (<https://pawnio.eu/>) — Voraussetzung für Mainboard- und CPU-Kerntemperatur-Sensoren; ohne Treiber bleiben diese Sensoren leer
-- [x] Danach mit `dotnet --list-sdks` prüfen, dass ein .NET 10 SDK verfügbar ist
+## Prüfen
+
+```powershell
+dotnet --list-sdks        # .NET 10 SDK vorhanden?
+dotnet build .\HardwareControlCenter.sln
+dotnet test .\HardwareControlCenter.sln
+```
+
+Führen Sie die Tests ohne angeschlossene Hardware aus; sie verwenden Fakes.
+Echte Lüfterschreibtests nur mit Aufsicht und nach dem Protokoll in
+[LUEFTERSTEUERUNG_PLAN.md](LUEFTERSTEUERUNG_PLAN.md) durchführen.
