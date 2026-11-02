@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   or outdated
 - Verified-hardware report for the MSI H87-G43 / Nuvoton NCT6779D
 
+### Changed
+
+- Fan page uses one selection card per fan channel (name, RPM, control value)
+  with a compact per-channel curve editor; all channels including the GPU fan
+  are visible without scrolling
+- Settings card is sized to its content instead of stretching across the window
+
+### Fixed
+
+- The settings button no longer stretches over the whole sidebar height
+  (`DockPanel` last-child fill)
+
 ## [0.1.0] - 2026-11-02
 
 ### Added

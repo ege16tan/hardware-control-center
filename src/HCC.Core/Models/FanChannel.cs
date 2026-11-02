@@ -54,4 +54,8 @@ public sealed record FanChannel(
     public string ControlValueDisplay => ControlPercent is double percent
         ? $"Control-Messwert: {percent:0} %"
         : "";
+
+    public string ControlShortDisplay => ControlPercent is double percent
+        ? $"Steuerung {percent:0} %"
+        : "nur lesen";
 }

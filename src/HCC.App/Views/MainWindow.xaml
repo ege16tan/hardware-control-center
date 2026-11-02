@@ -33,7 +33,7 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}" Padding="20">
-            <DockPanel>
+            <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Top">
                     <StackPanel Orientation="Horizontal" Margin="4,8,0,34">
                         <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource AccentBrush}">

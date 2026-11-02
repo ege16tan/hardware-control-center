@@ -1,44 +1,44 @@
 <UserControl x:Class="HCC.App.Views.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Border Style="{StaticResource CardStyle}">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel VerticalAlignment="Top" MaxWidth="520" HorizontalAlignment="Left">
-                <TextBlock Text="Einstellungen" FontSize="18" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding Message}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+    <Border Style="{StaticResource CardStyle}"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            MaxWidth="760">
+        <StackPanel VerticalAlignment="Top">
+            <TextBlock Text="{Binding Message}" Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" />
 
-                <TextBlock Text="Aktualisierungsintervall" Style="{StaticResource SectionHeaderStyle}" Margin="0,28,0,8" />
-                <ComboBox ItemsSource="{Binding AvailableIntervals}"
-                          SelectedItem="{Binding SelectedRefreshIntervalSeconds, Mode=TwoWay}"
-                          Style="{StaticResource AppComboBoxStyle}" />
-                <TextBlock Text="Sekunden zwischen den Messungen (1, 2, 5 oder 10)." Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,7,0,0" />
+            <TextBlock Text="Aktualisierungsintervall" Style="{StaticResource SectionHeaderStyle}" Margin="0,18,0,8" />
+            <ComboBox ItemsSource="{Binding AvailableIntervals}"
+                      SelectedItem="{Binding SelectedRefreshIntervalSeconds, Mode=TwoWay}"
+                      Style="{StaticResource AppComboBoxStyle}" />
+            <TextBlock Text="Sekunden zwischen den Messungen (1, 2, 5 oder 10)." Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,7,0,0" />
 
-                <TextBlock Text="Profile" Style="{StaticResource SectionHeaderStyle}" Margin="0,28,0,8" />
-                <DockPanel Margin="0,0,0,10">
-                    <Button DockPanel.Dock="Right" Content="Speichern" Command="{Binding SaveProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
-                    <TextBox Text="{Binding ProfileName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
-                </DockPanel>
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="Laden" Command="{Binding ApplyProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
-                    <Button DockPanel.Dock="Right" Content="Löschen" Command="{Binding DeleteProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
-                    <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" Style="{StaticResource AppComboBoxStyle}" />
-                </DockPanel>
-                <TextBlock Text="{Binding ProfileMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="Profile" Style="{StaticResource SectionHeaderStyle}" Margin="0,22,0,8" />
+            <DockPanel Margin="0,0,0,10">
+                <Button DockPanel.Dock="Right" Content="Speichern" Command="{Binding SaveProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
+                <TextBox Text="{Binding ProfileName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
+            </DockPanel>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Laden" Command="{Binding ApplyProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
+                <Button DockPanel.Dock="Right" Content="Löschen" Command="{Binding DeleteProfileCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
+                <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" Style="{StaticResource AppComboBoxStyle}" />
+            </DockPanel>
+            <TextBlock Text="{Binding ProfileMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
 
-                <TextBlock Text="Temperaturwarnung" Style="{StaticResource SectionHeaderStyle}" Margin="0,28,0,8" />
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="Speichern" Command="{Binding SaveAlertCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
-                    <TextBox Text="{Binding AlertWarningText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
-                </DockPanel>
-                <TextBlock Text="Warnschwelle in °C (1 bis 150). Ein Alarm erscheint oben im Fenster, sobald ein Temperatursensor darüber liegt." Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,7,0,0" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding AlertMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="Temperaturwarnung" Style="{StaticResource SectionHeaderStyle}" Margin="0,22,0,8" />
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Speichern" Command="{Binding SaveAlertCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="8,0,0,0" />
+                <TextBox Text="{Binding AlertWarningText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
+            </DockPanel>
+            <TextBlock Text="Warnschwelle in °C (1 bis 150). Ein Alarm erscheint oben im Fenster, sobald ein Temperatursensor darüber liegt." Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,7,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding AlertMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
 
-                <TextBlock Text="Darstellung" Style="{StaticResource SectionHeaderStyle}" Margin="0,28,0,8" />
-                <ComboBox ItemsSource="{Binding AvailableThemes}"
-                          SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
-                          Style="{StaticResource AppComboBoxStyle}" />
-                <TextBlock Text="{Binding ThemeMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
-            </StackPanel>
-        </ScrollViewer>
+            <TextBlock Text="Darstellung" Style="{StaticResource SectionHeaderStyle}" Margin="0,22,0,8" />
+            <ComboBox ItemsSource="{Binding AvailableThemes}"
+                      SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
+                      Style="{StaticResource AppComboBoxStyle}" />
+            <TextBlock Text="{Binding ThemeMessage}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+        </StackPanel>
     </Border>
 </UserControl>
