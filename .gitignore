@@ -1,9 +1,22 @@
+# Build output
 bin/
 obj/
 .vs/
+.idea/
+.vscode/
+TestResults/
+*.trx
+
+# User-specific files
 *.user
 *.suo
 *.cache
 Thumbs.db
+
+# Local-only working files (never part of the public repository)
+.OLD/
+Claude-Handoff/
+DEEPSEEK_IMPLEMENTATION_PLAN.md
+CODE_REVIEW_TODO.md
 .dotnet-home/
 restore-diagnostic.log
