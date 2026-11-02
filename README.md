@@ -1,6 +1,7 @@
 # Hardware Control Center
 
 [![CI](https://github.com/ege16tan/hardware-control-center/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ege16tan/hardware-control-center/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/ege16tan/hardware-control-center)](https://github.com/ege16tan/hardware-control-center/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Hardware Control Center (HCC) is a Windows desktop application for live hardware
@@ -21,6 +22,14 @@ after it was verified on the real board (see [Safety](#safety)).
 - Configurable temperature warning threshold with a visible alarm
 - Dark and light themes with instant switching and persisted selection
 - Explicit driver diagnostics when PawnIO is missing or outdated
+
+## Download
+
+Prebuilt Windows x64 builds are attached to the
+[latest release](https://github.com/ege16tan/hardware-control-center/releases/latest).
+Unpack `HCC-win-x64.zip`, install [PawnIO](https://pawnio.eu/) if you want
+motherboard and CPU-core sensors, then start `HCC.App.exe` (the app asks for
+administrator rights).
 
 ## Verified target system
 

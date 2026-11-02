@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  publish:
+    name: publish-windows-x64
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore HardwareControlCenter.sln
+
+      - name: Build and test
+        run: |
+          dotnet build HardwareControlCenter.sln --configuration Release --no-restore
+          dotnet test HardwareControlCenter.sln --configuration Release --no-build
+
+      - name: Publish self-contained Windows app
+        run: >
+          dotnet publish src/HCC.App/HCC.App.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output publish
+          -p:DebugType=None
+          -p:DebugSymbols=false
+
+      - name: Package
+        run: Compress-Archive -Path ./publish/* -DestinationPath ./HCC-win-x64.zip -CompressionLevel Optimal
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:GITHUB_REF_NAME ./HCC-win-x64.zip --title "$env:GITHUB_REF_NAME" --generate-notes
