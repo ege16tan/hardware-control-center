@@ -8,6 +8,7 @@ namespace HCC.Hardware.Monitoring;
 public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
 {
     private readonly object _sync = new();
+    private readonly FanDiscoveryService _fanDiscoveryService = new();
     private string? _initializationError;
     private readonly Computer _computer = new()
     {
@@ -45,6 +46,8 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
                 }
             }
 
+            var fanChannels = _fanDiscoveryService.Discover(sensors);
+
             var memory = new MemoryStatusEx { Length = (uint)Marshal.SizeOf<MemoryStatusEx>() };
             if (!GlobalMemoryStatusEx(ref memory))
                 return new MetricSnapshot(cpuLoad ?? 0, gpuLoad ?? 0, 0, 0, 0, sensors,
@@ -53,7 +56,8 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
                     HardwareDevices: devices,
                     CpuAvailable: cpuLoad.HasValue,
                     GpuAvailable: gpuLoad.HasValue,
-                    MemoryAvailable: false);
+                    MemoryAvailable: false,
+                    FanChannels: fanChannels);
 
             var totalGb = memory.TotalPhysical / 1024d / 1024 / 1024;
             var availableGb = memory.AvailablePhysical / 1024d / 1024 / 1024;
@@ -70,7 +74,8 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
                 GpuLoadSensorName: gpuLoadSensorName,
                 HardwareDevices: devices,
                 CpuAvailable: cpuLoad.HasValue,
-                GpuAvailable: gpuLoad.HasValue);
+                GpuAvailable: gpuLoad.HasValue,
+                FanChannels: fanChannels);
         }
     }
 
@@ -92,6 +97,7 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
             var unit = sensor.SensorType switch
             {
                 SensorType.Load => "%",
+                SensorType.Control => "%",
                 SensorType.Temperature => "°C",
                 SensorType.Fan => "RPM",
                 SensorType.Clock => "MHz",
@@ -100,7 +106,15 @@ public sealed class HardwareMetricsProvider : IMetricsProvider, IDisposable
                 _ => ""
             };
             if (unit.Length == 0) continue;
-            readings.Add(new HardwareSensorReading(hardware.Name, sensor.Name, sensor.SensorType.ToString(), value, unit));
+            var sensorId = $"{hardware.Identifier}/{sensor.SensorType}/{sensor.Name}";
+            readings.Add(new HardwareSensorReading(
+                hardware.Name,
+                sensor.Name,
+                sensor.SensorType.ToString(),
+                value,
+                unit,
+                sensorId,
+                hardware.HardwareType.ToString()));
             if (sensor.SensorType != SensorType.Load) continue;
             if (hardware.HardwareType == HardwareType.Cpu && (sensor.Name.Contains("Total", StringComparison.OrdinalIgnoreCase) || cpuLoad is null)) cpuLoad = value;
             if (hardware.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel)

@@ -38,7 +38,7 @@
 
 - [x] Erkannte Hardware und verfügbare Sensoranzahl in einer reinen Leseansicht anzeigen
 - [ ] Unterstützte Lüftercontroller genauer identifizieren
-- [ ] Lüfterkurven mit Grenzen und Schutzmechanismen implementieren
+- [x] Lüfterkurven mit Grenzen und Schutzmechanismen implementieren
 - [ ] Steuerung nur für erkannte und unterstützte Hardware freigeben
 
 ### Phase 5 – Einstellungen und Profile
@@ -54,7 +54,7 @@ Die MSI-Dokumentation beschreibt neben Monitoring auch Profile, CPU-Frequenz/Rat
 
 - [x] Live-Monitoring, Hardware-/Sensorübersicht und lokal gespeicherter Verlauf
 - [x] Benannte Profile für die hier unterstützten Monitoring-Einstellungen
-- [ ] Warnschwellen für Temperaturen und Sensorwerte mit sichtbarem Alarm
+- [x] Warnschwellen für Temperaturen mit sichtbarem Alarm
 - [ ] Aufzeichnungssitzungen mit Start/Stopp und auswählbarem Verlauf
 - [ ] Erkennung und sichere Steuerung unterstützter Lüfteranschlüsse
 - [ ] Tuningfunktionen (CPU-/IGP-Takt, Ratio, Spannung, DRAM) nur nach Board-/CPU-Prüfung und mit Schutzgrenzen; bis dahin ausdrücklich nicht freigeben

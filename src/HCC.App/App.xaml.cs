@@ -1,3 +1,4 @@
+using HCC.App.Theming;
 using HCC.App.ViewModels;
 using HCC.App.Views;
 using HCC.Infrastructure.DependencyInjection;
@@ -16,12 +17,20 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        var themeSettings = ThemeSettings.Load();
+        ThemeManager.Apply(themeSettings.Theme);
+
         var services = new ServiceCollection();
         services.AddHardwareControlCenter();
         services.AddSingleton(_ => MonitoringSettings.Load());
+        services.AddSingleton(_ => FanCurveSettings.Load());
+        services.AddSingleton(_ => AlertSettings.Load());
+        services.AddSingleton(_ => themeSettings);
         services.AddSingleton<MetricHistoryStore>();
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<MonitoringViewModel>();
+        services.AddSingleton<FanControlViewModel>();
+        services.AddSingleton<AlertViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<MainWindow>();

@@ -8,29 +8,23 @@
         Height="820"
         MinWidth="960"
         MinHeight="640"
-        Background="{StaticResource AppBackgroundBrush}"
-        Foreground="#F2F4F8"
+        Background="{DynamicResource AppBackgroundBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MonitoringViewModel}">
             <views:MonitoringView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:FanControlViewModel}">
+            <views:FanControlView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <views:SettingsView />
         </DataTemplate>
-        <Style x:Key="NavigationButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="#C5CBD5" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="16,12" />
-            <Setter Property="Margin" Value="0,3" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -38,22 +32,23 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="20">
+        <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}" Padding="20">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top">
                     <StackPanel Orientation="Horizontal" Margin="4,8,0,34">
-                        <Border Width="34" Height="34" CornerRadius="10" Background="{StaticResource AccentBrush}">
-                            <TextBlock Text="H" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource AccentBrush}">
+                            <TextBlock Text="H" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource AccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="HARDWARE" FontSize="11" Foreground="{StaticResource MutedTextBrush}" />
+                            <TextBlock Text="HARDWARE" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" />
                             <TextBlock Text="Control Center" FontSize="14" FontWeight="SemiBold" />
                         </StackPanel>
                     </StackPanel>
 
-                    <TextBlock Text="ARBEITSBEREICH" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource MutedTextBrush}" Margin="12,0,0,9" />
+                    <TextBlock Text="ARBEITSBEREICH" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource MutedTextBrush}" Margin="12,0,0,9" />
                     <Button Style="{StaticResource NavigationButtonStyle}" Content="▦   Dashboard" Command="{Binding NavigateDashboardCommand}" />
                     <Button Style="{StaticResource NavigationButtonStyle}" Content="◉   Monitoring" Command="{Binding NavigateMonitoringCommand}" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="❄   Lüftersteuerung" Command="{Binding NavigateFanControlCommand}" />
                 </StackPanel>
 
                 <Button DockPanel.Dock="Bottom"
@@ -66,21 +61,32 @@
         <Grid Grid.Column="1" Margin="36,28,36,32">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" Margin="0,0,0,28">
-                <Border DockPanel.Dock="Right" Background="#20252E" CornerRadius="14" Padding="12,7" VerticalAlignment="Center">
+                <Border DockPanel.Dock="Right" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="14" Padding="12,7" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Width="7" Height="7" Fill="{Binding Dashboard.StatusIndicatorBrush}" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="#C5CBD5" />
+                        <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
                     </StackPanel>
                 </Border>
                 <StackPanel>
                     <TextBlock Text="{Binding CurrentTitle}" FontSize="26" FontWeight="SemiBold" />
-                    <TextBlock Text="Systemübersicht und Hardwarestatus" Foreground="{StaticResource MutedTextBrush}" Margin="0,5,0,0" />
+                    <TextBlock Text="{Binding CurrentSubtitle}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,5,0,0" />
                 </StackPanel>
             </DockPanel>
-            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+            <Border Grid.Row="1"
+                    Background="{DynamicResource DangerSurfaceBrush}"
+                    BorderBrush="{DynamicResource DangerBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="12,10"
+                    Margin="0,0,0,16"
+                    Visibility="{Binding Alerts.HasAlert, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding Alerts.AlertText}" Foreground="{DynamicResource DangerTextBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            </Border>
+            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
         </Grid>
     </Grid>
 </Window>

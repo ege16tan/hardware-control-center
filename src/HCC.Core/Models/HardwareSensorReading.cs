@@ -5,4 +5,9 @@ public sealed record HardwareSensorReading(
     string Name,
     string Type,
     double Value,
-    string Unit);
+    string Unit,
+    string? Identifier = null,
+    string? HardwareType = null)
+{
+    public string DisplayName => $"{Hardware} · {Name}";
+}

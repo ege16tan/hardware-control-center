@@ -13,4 +13,5 @@ public sealed record MetricSnapshot(
     IReadOnlyList<HardwareDeviceReading>? HardwareDevices = null,
     bool CpuAvailable = true,
     bool GpuAvailable = true,
-    bool MemoryAvailable = true);
+    bool MemoryAvailable = true,
+    IReadOnlyList<FanChannel>? FanChannels = null);

@@ -15,47 +15,44 @@
             <Button DockPanel.Dock="Right"
                     Content="Aktualisieren"
                     Command="{Binding RefreshCommand}"
-                    Padding="14,8"
-                    Background="#292F3A"
-                    Foreground="#F2F4F8"
-                    BorderThickness="0"
-                    Cursor="Hand" />
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    VerticalAlignment="Top" />
             <StackPanel>
                 <TextBlock Text="Systemleistung" FontSize="18" FontWeight="SemiBold" />
-                <TextBlock Text="CPU- und GPU-Werte kommen von verfügbaren Sensoren; RAM wird von Windows gemeldet." Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0" />
-                <TextBlock Text="{Binding Status}" Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0" />
+                <TextBlock Text="CPU- und GPU-Werte kommen von verfügbaren Sensoren; RAM wird von Windows gemeldet." Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0" />
             </StackPanel>
         </DockPanel>
 
         <UniformGrid Grid.Row="1" Columns="3" VerticalAlignment="Top">
-            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="0,0,12,0">
+            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock Text="CPU" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="CPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
                     <TextBlock Text="{Binding CpuUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Visibility="{Binding CpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{StaticResource AccentBrush}" Background="#303641" />
-                    <TextBlock Text="Auslastung" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Visibility="{Binding CpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartCpuBrush}" Background="{DynamicResource TrackBrush}" />
+                    <TextBlock Text="Auslastung" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
-            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="6,0">
+            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="6,0">
                 <StackPanel>
-                    <TextBlock Text="GPU" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="GPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
                     <TextBlock Text="{Binding GpuUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Visibility="{Binding GpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="#52C7B8" Background="#303641" />
-                    <TextBlock Text="{Binding GpuUsageSource, StringFormat={}Sensor: {0}}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Visibility="{Binding GpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartGpuBrush}" Background="{DynamicResource TrackBrush}" />
+                    <TextBlock Text="{Binding GpuUsageSource, StringFormat={}Sensor: {0}}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
-            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="22" Margin="12,0,0,0">
+            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="12,0,0,0">
                 <StackPanel>
-                    <TextBlock Text="ARBEITSSPEICHER" Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
+                    <TextBlock Text="ARBEITSSPEICHER" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
                     <TextBlock Text="{Binding MemoryUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Visibility="{Binding MemoryAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="#E8B45B" Background="#303641" />
-                    <TextBlock Text="{Binding MemorySummary}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Visibility="{Binding MemoryAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartMemoryBrush}" Background="{DynamicResource TrackBrush}" />
+                    <TextBlock Text="{Binding MemorySummary}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
         </UniformGrid>
-        <Border Grid.Row="2" Margin="0,22,0,0" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="18">
+        <Border Grid.Row="2" Margin="0,22,0,0" Style="{StaticResource CardStyle}" Padding="18">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -63,13 +60,13 @@
                 </Grid.RowDefinitions>
                 <StackPanel Margin="0,0,0,8">
                     <TextBlock Text="Leistungsverlauf" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding SamplingDescription}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,4,0,0" />
+                    <TextBlock Text="{Binding SamplingDescription}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,4,0,0" />
                 </StackPanel>
                 <lvc:CartesianChart Grid.Row="1"
                                     Series="{Binding Series}"
                                     XAxes="{Binding XAxes}"
                                     YAxes="{Binding YAxes}"
-                                    Background="#1C2028"
+                                    Background="{DynamicResource ChartBackgroundBrush}"
                                     LegendPosition="Bottom"
                                     LegendTextPaint="{Binding ChartLegendTextPaint}"
                                     LegendBackgroundPaint="{Binding ChartLegendBackgroundPaint}" />

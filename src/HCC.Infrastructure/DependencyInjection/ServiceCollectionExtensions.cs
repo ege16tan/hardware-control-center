@@ -1,4 +1,5 @@
 using HCC.Core.Interfaces;
+using HCC.Hardware.Controllers;
 using HCC.Hardware.Monitoring;
 using HCC.Infrastructure.Monitoring;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<HardwareMetricsProvider>();
         services.AddSingleton<IMetricsProvider>(provider => provider.GetRequiredService<HardwareMetricsProvider>());
         services.AddSingleton<MetricsSampler>();
+        services.AddSingleton<IFanController, LhmFanController>();
+        services.AddSingleton<FanControlService>();
         return services;
     }
 }

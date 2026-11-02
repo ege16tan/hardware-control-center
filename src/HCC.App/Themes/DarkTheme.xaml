@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0E1116" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#151922" />
+    <SolidColorBrush x:Key="CardBrush" Color="#1B202A" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#2A313D" />
+    <SolidColorBrush x:Key="MutedTextBrush" Color="#98A2B3" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F5F9" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C5CBD5" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#7C8CFF" />
+    <SolidColorBrush x:Key="AccentForegroundBrush" Color="#101216" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="#222833" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#242B36" />
+    <SolidColorBrush x:Key="InputForegroundBrush" Color="#F3F5F9" />
+    <SolidColorBrush x:Key="HoverBrush" Color="#252C38" />
+    <SolidColorBrush x:Key="SelectionBrush" Color="#2E3645" />
+    <SolidColorBrush x:Key="TrackBrush" Color="#303641" />
+    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#3A1F24" />
+    <SolidColorBrush x:Key="DangerBorderBrush" Color="#7A3038" />
+    <SolidColorBrush x:Key="DangerTextBrush" Color="#FFB4B4" />
+    <SolidColorBrush x:Key="WarningTextBrush" Color="#E7C36B" />
+    <SolidColorBrush x:Key="ChartCpuBrush" Color="#7C8CFF" />
+    <SolidColorBrush x:Key="ChartGpuBrush" Color="#52C7B8" />
+    <SolidColorBrush x:Key="ChartMemoryBrush" Color="#E8B45B" />
+    <SolidColorBrush x:Key="ChartBackgroundBrush" Color="#1C2028" />
+</ResourceDictionary>

@@ -15,6 +15,7 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
     private readonly MonitoringSettings _settings;
     private readonly Dispatcher _dispatcher;
     private string _status = "Sensoren werden geladen …";
+    private string _fanStatus = "Lüfter werden geladen …";
 
     public MonitoringViewModel(MetricsSampler metricsSampler, MonitoringSettings settings)
     {
@@ -31,8 +32,10 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<HardwareSensorReading> Sensors { get; } = [];
     public ObservableCollection<HardwareDeviceReading> HardwareDevices { get; } = [];
+    public ObservableCollection<FanChannel> FanChannels { get; } = [];
     public IAsyncRelayCommand RefreshCommand { get; }
     public string Status { get => _status; private set => SetProperty(ref _status, value); }
+    public string FanStatus { get => _fanStatus; private set => SetProperty(ref _fanStatus, value); }
 
     public void Dispose()
     {
@@ -63,6 +66,11 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
         foreach (var sensor in snapshot.Sensors ?? []) Sensors.Add(sensor);
         HardwareDevices.Clear();
         foreach (var device in snapshot.HardwareDevices ?? []) HardwareDevices.Add(device);
+        FanChannels.Clear();
+        foreach (var channel in snapshot.FanChannels ?? []) FanChannels.Add(channel);
+        FanStatus = FanChannels.Count == 0
+            ? "Keine Lüfter-Drehzahlsensoren gefunden."
+            : $"{FanChannels.Count} Lüfter-Drehzahlsensor(en) erkannt. Die Steuerung bleibt deaktiviert, bis die Anschlüsse am MSI H87-G43 geprüft wurden.";
         Status = snapshot.Status ?? (Sensors.Count == 0
             ? "Keine unterstützten Sensoren gefunden."
             : $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
