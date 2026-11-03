@@ -128,20 +128,65 @@ public sealed class FanControlServiceTests
     }
 
     [Fact]
-    public void WriteFailureSetsErrorAndAttemptsFallback()
+    public void MinimumPercentIsClampedBeforeWriting()
+    {
+        var controller = new FakeFanController();
+        using var service = new FanControlService(controller);
+        var channel = Channel(FanCapability.ControlVerified);
+        Assert.True(service.TryActivate(channel, [new(40, 0), new(80, 0)], "temp-1", out _));
+
+        Assert.True(service.TryApply(Snapshot(channel, Temperature(60)), out _));
+
+        var write = Assert.Single(controller.Writes);
+        Assert.Equal(FanControlDefaults.MinimumPercent, write.Percent, 6);
+    }
+
+    [Fact]
+    public void WritesAreThrottledByIntervalAndHysteresis()
+    {
+        var controller = new FakeFanController();
+        var now = DateTimeOffset.UnixEpoch;
+        using var service = new FanControlService(controller, clock: () => now);
+        var channel = Channel(FanCapability.ControlVerified);
+        Assert.True(service.TryActivate(channel, Curve, "temp-1", out _));
+
+        Assert.True(service.TryApply(Snapshot(channel, Temperature(60)), out _));
+        Assert.Single(controller.Writes);
+
+        now = now.AddSeconds(1);
+        Assert.True(service.TryApply(Snapshot(channel, Temperature(70)), out _));
+        Assert.Single(controller.Writes);
+
+        now = now.AddSeconds(4);
+        Assert.True(service.TryApply(Snapshot(channel, Temperature(61)), out _));
+        Assert.Single(controller.Writes);
+
+        now = now.AddSeconds(4);
+        Assert.True(service.TryApply(Snapshot(channel, Temperature(62)), out _));
+        Assert.Equal(2, controller.Writes.Count);
+        Assert.Equal(FanControlState.Active, service.GetState(channel.Id));
+    }
+
+    [Fact]
+    public void WriteFailuresOnlyFallBackAfterTheConfiguredLimit()
     {
         var controller = new FakeFanController { ThrowOnWrite = true };
         using var service = new FanControlService(controller);
         var channel = Channel(FanCapability.ControlVerified);
         Assert.True(service.TryActivate(channel, Curve, "temp-1", out _));
 
-        Assert.False(service.TryApply(Snapshot(channel, Temperature(60)), out var error));
+        for (var attempt = 1; attempt < FanControlDefaults.FailureLimit; attempt++)
+        {
+            Assert.False(service.TryApply(Snapshot(channel, Temperature(60)), out var error));
+            Assert.NotNull(error);
+            Assert.Equal(FanControlState.Active, service.GetState(channel.Id));
+            Assert.Empty(controller.Resets);
+        }
 
-        Assert.NotNull(error);
-        Assert.Empty(controller.Writes);
-        Assert.Single(controller.Resets);
+        Assert.False(service.TryApply(Snapshot(channel, Temperature(60)), out var lastError));
+        Assert.NotNull(lastError);
         Assert.Equal(FanControlState.Error, service.GetState(channel.Id));
-        Assert.NotNull(service.GetLastError(channel.Id));
+        Assert.Single(controller.Resets);
     }
 
     [Fact]

@@ -14,7 +14,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMetricsProvider>(provider => provider.GetRequiredService<HardwareMetricsProvider>());
         services.AddSingleton<MetricsSampler>();
         services.AddSingleton<IFanController, LhmFanController>();
-        services.AddSingleton<FanControlService>();
+        // Explicit factory: the safety limits and the clock are constructor defaults,
+        // not services, so the container must not try to resolve them.
+        services.AddSingleton(provider => new FanControlService(provider.GetRequiredService<IFanController>()));
         return services;
     }
 }

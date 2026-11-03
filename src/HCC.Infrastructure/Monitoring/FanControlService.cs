@@ -12,6 +12,31 @@ public enum FanControlState
 }
 
 /// <summary>
+/// Safety values from LUEFTERSTEUERUNG_PLAN.md §5.3 (proposals in the plan, kept as constants
+/// so tests and documentation agree). Change them only after a board test.
+/// </summary>
+public static class FanControlDefaults
+{
+    public const double MinimumPercent = 30;
+    public const double HysteresisCelsius = 2;
+    public const int FailureLimit = 3;
+    public static readonly TimeSpan WriteInterval = TimeSpan.FromSeconds(3);
+}
+
+/// <summary>
+/// Safety limits for one <see cref="FanControlService"/>. The minimum is clamped upwards;
+/// values above 100 % and non-finite values are rejected before they reach a controller.
+/// </summary>
+public sealed record FanControlLimits(
+    double MinimumPercent = FanControlDefaults.MinimumPercent,
+    double HysteresisCelsius = FanControlDefaults.HysteresisCelsius,
+    int FailureLimit = FanControlDefaults.FailureLimit,
+    TimeSpan? MinimumWriteInterval = null)
+{
+    public TimeSpan WriteInterval => MinimumWriteInterval ?? FanControlDefaults.WriteInterval;
+}
+
+/// <summary>
 /// State machine for later fan control. It never starts by itself: activation is an
 /// explicit call, every write requires a currently verified channel, and any failure
 /// falls back to the BIOS default.
@@ -19,12 +44,19 @@ public enum FanControlState
 public sealed class FanControlService : IDisposable
 {
     private readonly IFanController _controller;
+    private readonly FanControlLimits _limits;
+    private readonly Func<DateTimeOffset> _clock;
     private readonly Dictionary<string, ActiveCurve> _active = new(StringComparer.Ordinal);
     private readonly Dictionary<string, FanControlState> _states = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _errors = new(StringComparer.Ordinal);
     private bool _disposed;
 
-    public FanControlService(IFanController controller) => _controller = controller;
+    public FanControlService(IFanController controller, FanControlLimits? limits = null, Func<DateTimeOffset>? clock = null)
+    {
+        _controller = controller;
+        _limits = limits ?? new FanControlLimits();
+        _clock = clock ?? (() => DateTimeOffset.UtcNow);
+    }
 
     public FanControlState GetState(string channelId) =>
         _states.GetValueOrDefault(channelId, FanControlState.Inactive);
@@ -136,15 +168,37 @@ public sealed class FanControlService : IDisposable
                 continue;
             }
 
+            var now = _clock();
+            if (!ShouldWrite(active, sensor.Value, now))
+            {
+                // Hysteresis or write interval: keep the previous value, no hardware access.
+                _states[channel.Id] = FanControlState.Active;
+                continue;
+            }
+
             try
             {
-                _controller.SetPercent(channel, percent);
+                _controller.SetPercent(channel, Math.Clamp(percent, _limits.MinimumPercent, 100));
+                active.ConsecutiveFailures = 0;
+                active.LastWriteAt = now;
+                active.LastWrittenTemperature = sensor.Value;
                 _states[channel.Id] = FanControlState.Active;
                 _errors.Remove(channel.Id);
             }
             catch (Exception ex)
             {
-                Fallback(active, FanControlState.Error, $"Schreiben fehlgeschlagen: {ex.Message}");
+                active.ConsecutiveFailures++;
+                if (active.ConsecutiveFailures >= _limits.FailureLimit)
+                {
+                    Fallback(active, FanControlState.Error,
+                        $"Schreiben {_limits.FailureLimit}-mal fehlgeschlagen: {ex.Message}");
+                }
+                else
+                {
+                    _states[channel.Id] = FanControlState.Active;
+                    _errors[channel.Id] = $"Schreiben fehlgeschlagen ({active.ConsecutiveFailures}/{_limits.FailureLimit}): {ex.Message}";
+                }
+
                 error ??= _errors[active.Channel.Id];
             }
         }
@@ -198,8 +252,21 @@ public sealed class FanControlService : IDisposable
         }
     }
 
-    private sealed record ActiveCurve(
-        FanChannel Channel,
-        IReadOnlyList<FanCurvePoint> Curve,
-        string TemperatureSensorId);
+    private bool ShouldWrite(ActiveCurve active, double temperature, DateTimeOffset now)
+    {
+        if (active.LastWriteAt is not { } lastWrite) return true;
+        if (now - lastWrite < _limits.WriteInterval) return false;
+        return active.LastWrittenTemperature is not double lastTemperature
+            || Math.Abs(temperature - lastTemperature) >= _limits.HysteresisCelsius;
+    }
+
+    private sealed class ActiveCurve(FanChannel channel, IReadOnlyList<FanCurvePoint> curve, string temperatureSensorId)
+    {
+        public FanChannel Channel { get; } = channel;
+        public IReadOnlyList<FanCurvePoint> Curve { get; } = curve;
+        public string TemperatureSensorId { get; } = temperatureSensorId;
+        public int ConsecutiveFailures { get; set; }
+        public DateTimeOffset? LastWriteAt { get; set; }
+        public double? LastWrittenTemperature { get; set; }
+    }
 }
