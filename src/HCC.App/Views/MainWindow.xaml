@@ -29,76 +29,82 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248" />
+            <ColumnDefinition Width="72" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}" Padding="20">
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Top">
-                    <StackPanel Orientation="Horizontal" Margin="4,8,0,34">
-                        <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource AccentBrush}">
-                            <TextBlock Text="H" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource AccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="HARDWARE" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" />
-                            <TextBlock Text="Control Center" FontSize="14" FontWeight="SemiBold" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <TextBlock Text="ARBEITSBEREICH" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource MutedTextBrush}" Margin="12,0,0,9" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="▦   Dashboard" Command="{Binding NavigateDashboardCommand}"
-                            controls:NavigationState.IsActive="{Binding IsDashboardActive}" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="◉   Monitoring" Command="{Binding NavigateMonitoringCommand}"
-                            controls:NavigationState.IsActive="{Binding IsMonitoringActive}" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="❄   Lüftersteuerung" Command="{Binding NavigateFanControlCommand}"
-                            controls:NavigationState.IsActive="{Binding IsFanControlActive}" />
-                </StackPanel>
+        <Border Grid.Column="0"
+                Background="{DynamicResource SidebarBrush}"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="0,0,1,0">
+            <DockPanel Margin="0,16">
+                <Border DockPanel.Dock="Top"
+                        Width="36" Height="36" CornerRadius="10"
+                        Background="{DynamicResource AccentBrush}"
+                        HorizontalAlignment="Center"
+                        Margin="0,4,0,26"
+                        ToolTip="Hardware Control Center">
+                    <TextBlock Text="H" FontSize="18" FontWeight="Bold"
+                               Foreground="{DynamicResource AccentForegroundBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
 
                 <Button DockPanel.Dock="Bottom"
-                        Style="{StaticResource NavigationButtonStyle}"
-                        Content="⚙   Einstellungen"
+                        Style="{StaticResource RailButtonStyle}"
+                        Content="&#xE713;"
+                        ToolTip="Einstellungen"
+                        AutomationProperties.Name="Einstellungen"
                         Command="{Binding NavigateSettingsCommand}"
                         controls:NavigationState.IsActive="{Binding IsSettingsActive}" />
 
-                <Border DockPanel.Dock="Bottom"
-                        Background="{DynamicResource SurfaceAltBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Padding="12"
-                        Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="ERKANNTES SYSTEM" FontSize="10" Foreground="{DynamicResource MutedTextBrush}" />
-                        <TextBlock Text="{Binding Dashboard.SystemTitle}"
-                                   FontWeight="SemiBold"
-                                   Margin="0,6,0,2"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="{Binding Dashboard.SystemSubtitle}"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource MutedTextBrush}"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-                </Border>
+                <StackPanel>
+                    <Button Style="{StaticResource RailButtonStyle}"
+                            Content="&#xE80F;"
+                            ToolTip="Dashboard"
+                            AutomationProperties.Name="Dashboard"
+                            Command="{Binding NavigateDashboardCommand}"
+                            controls:NavigationState.IsActive="{Binding IsDashboardActive}" />
+                    <Button Style="{StaticResource RailButtonStyle}"
+                            Content="&#xE9D9;"
+                            ToolTip="Monitoring"
+                            AutomationProperties.Name="Monitoring"
+                            Command="{Binding NavigateMonitoringCommand}"
+                            controls:NavigationState.IsActive="{Binding IsMonitoringActive}" />
+                    <!-- The snowflake lives in Segoe UI Symbol, not in Segoe MDL2 Assets. -->
+                    <Button Style="{StaticResource RailButtonStyle}"
+                            Content="&#x2744;"
+                            FontFamily="Segoe UI Symbol"
+                            ToolTip="Lüftersteuerung"
+                            AutomationProperties.Name="Lüftersteuerung"
+                            Command="{Binding NavigateFanControlCommand}"
+                            controls:NavigationState.IsActive="{Binding IsFanControlActive}" />
+                </StackPanel>
             </DockPanel>
         </Border>
 
-        <Grid Grid.Column="1" Margin="36,28,36,32">
+        <Grid Grid.Column="1" Margin="32,24,32,28">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <DockPanel Grid.Row="0" Margin="0,0,0,28">
+            <DockPanel Grid.Row="0" Margin="0,0,0,20">
                 <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" CornerRadius="20" Padding="11,6" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Width="7" Height="7" Fill="{Binding Dashboard.StatusIndicatorBrush}" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
                     </StackPanel>
                 </Border>
-                <StackPanel>
-                    <TextBlock Text="{Binding CurrentTitle}" FontSize="26" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding CurrentSubtitle}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,5,0,0" />
+                <StackPanel Margin="0,0,16,0">
+                    <TextBlock Text="{Binding Dashboard.SystemTitle}"
+                               FontSize="12"
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding CurrentTitle}" FontSize="26" FontWeight="SemiBold" Margin="0,2,0,0" />
+                    <TextBlock Text="{Binding CurrentSubtitle}"
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap" />
                 </StackPanel>
             </DockPanel>
             <Border Grid.Row="1"

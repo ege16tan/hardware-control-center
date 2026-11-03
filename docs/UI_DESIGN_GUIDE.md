@@ -74,7 +74,8 @@ Regeln:
 |---|---|
 | `CardStyle` | Oberste Fläche einer Seite, `Border` mit Hintergrund/Rahmen/Radius/Padding |
 | `SectionHeaderStyle` | Abschnittsüberschrift (`TextBlock`) |
-| `NavigationButtonStyle` | Nur für Sidebar-Navigation |
+| `NavigationButtonStyle` | Breite Sidebar-Navigation (Text + Glyph) |
+| `RailButtonStyle` | Icon-Rail (72 px): 48×48, `Segoe MDL2 Assets`, Tooltip **und** `AutomationProperties.Name` verpflichtend |
 | `PrimaryButtonStyle` | Eine klare Hauptaktion pro Kontext |
 | `SecondaryButtonStyle` | Alle normalen Aktionen (Standardwahl) |
 | `AppTextBoxStyle` | Jedes `TextBox` |
@@ -88,6 +89,13 @@ Regeln:
 Navigation: `controls:NavigationState.IsActive="{Binding IsXActive}"` am Button setzen
 (`MainWindowViewModel` pflegt die Flags in `NavigateTo`). Stil-Trigger färbt Fläche,
 Rahmen und Schrift des aktiven Eintrags – nie inline im View.
+
+Die Shell nutzt seit 2026-11-03 eine **Icon-Rail (72 px)** statt der breiten Sidebar.
+Deshalb gilt für jeden Rail-Button: `ToolTip` **und** `AutomationProperties.Name` mit dem
+deutschen Klartext (Screenreader liest sonst das Glyphen-Zeichen), und der Fokusring darf
+nicht abgeschaltet werden (`IsKeyboardFocused`-Trigger im Style). Glyphen:
+`E80F` Dashboard, `E9D9` Monitoring, `E713` Einstellungen (alle `Segoe MDL2 Assets`),
+`U+2744` Lüftersteuerung (nur in `Segoe UI Symbol`).
 
 Style-Overrides sind lokal erlaubt (z. B. `Margin`), aber keine neuen Farben.
 Fehlt ein Style: zuerst prüfen, ob `SecondaryButtonStyle`/`CardStyle` reicht.

@@ -195,4 +195,9 @@ Eintrag in [docs/hardware-verification-h87-g43.md](docs/hardware-verification-h8
       Spaltenkopf und echten Pluralformen
 - [x] Chart folgt dem Theme: Paints für Serien, Achsen und Legende werden bei
       `ThemeSettings.Changed` neu erzeugt; Gesamtstand 138 Tests grün
+- [x] Shell auf Icon-Rail (72 px) umgebaut: Logo, vier Rail-Buttons mit Tooltip und
+      `AutomationProperties.Name`, Kopfzeile mit erkanntem System, Titel und
+      Untertitel; Dashboard-Kennzahlen 40 px mit Akzentstreifen je Metrik.
+      Lüfter-Modi (Silent/Balanced/Turbo) bewusst **nicht** gebaut, weil dafür
+      Domänen-Semantik und Phase C fehlen.
 

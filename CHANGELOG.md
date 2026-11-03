@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - New palette for both themes: blue accent `#5AA7FF`, cooler surfaces
   (`#0B0E14`, `#121722`, `#252E3D`), warmer status colors, plus chip, navigation
   and status tokens shared by dark and light
+- Navigation is a 72 px icon rail with tooltips; the header shows the detected
+  system above the page title and keeps the page subtitle
+- Dashboard metric values are larger (40 px) with one accent strip per metric
 - The sidebar marks the active page instead of looking identical on every page
 - Dashboard uses a card layout: metric cards, a full-width recording strip and a
   content row with the chart in its own star row next to temperatures, fans and
@@ -56,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   test; `LhmFanController` still refuses every write
 - German plurals on the monitoring page ("1 Lüfter-Drehzahlsensor" instead of
   "Sensor(en)")
+- Icon-only navigation entries expose their German label to screen readers
+  (`AutomationProperties.Name`) instead of the glyph, and keep a keyboard focus ring
 - The settings page scrolls instead of clipping the warning and theme sections
   on small windows
 - Temperature warnings only trigger for sensors that really report `°C`; sensors
