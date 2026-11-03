@@ -122,8 +122,11 @@ public sealed class FanControlViewModel : ObservableObject, IDisposable
         SelectedChannel = FanChannels.FirstOrDefault(channel => channel.Id == channelId) ?? FanChannels.FirstOrDefault();
 
         TemperatureSensors.Clear();
+        // FanControlService only accepts °C sources, so the picker must not offer anything else.
         foreach (var sensor in (snapshot.Sensors ?? [])
                      .Where(sensor => string.Equals(sensor.Type, "Temperature", StringComparison.OrdinalIgnoreCase)
+                         && string.Equals(sensor.Unit, "°C", StringComparison.OrdinalIgnoreCase)
+                         && double.IsFinite(sensor.Value)
                          && !string.IsNullOrWhiteSpace(sensor.Identifier)))
         {
             TemperatureSensors.Add(sensor);
@@ -134,11 +137,14 @@ public sealed class FanControlViewModel : ObservableObject, IDisposable
         var problems = new List<string>();
         if (snapshot.Status is not null) problems.Add(snapshot.Status);
         if (FanChannels.Count == 0) problems.Add("Keine Lüfter-Drehzahlsensoren erkannt.");
-        if (TemperatureSensors.Count == 0) problems.Add("Kein Temperatursensor erkannt; eine Kurve kann nicht angewendet werden.");
+        if (TemperatureSensors.Count == 0) problems.Add("Kein Temperatursensor mit °C-Einheit erkannt; eine Kurve kann nicht angewendet werden.");
         Status = problems.Count > 0
             ? string.Join(" ", problems)
-            : $"{FanChannels.Count} Lüfterkanal/Kanäle und {TemperatureSensors.Count} Temperatursensor(en) erkannt.";
+            : $"{Plural(FanChannels.Count, "Lüfterkanal", "Lüfterkanäle")} und {Plural(TemperatureSensors.Count, "Temperatursensor", "Temperatursensoren")} erkannt.";
     }
+
+    private static string Plural(int count, string singular, string plural) =>
+        count == 1 ? $"1 {singular}" : $"{count} {plural}";
 
     private void OnUiThread(Action action)
     {

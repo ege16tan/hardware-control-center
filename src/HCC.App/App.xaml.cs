@@ -27,6 +27,7 @@ public partial class App : Application
         services.AddSingleton(_ => AlertSettings.Load());
         services.AddSingleton(_ => themeSettings);
         services.AddSingleton<MetricHistoryStore>();
+        services.AddSingleton(_ => new RecordingSessionStore());
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<MonitoringViewModel>();
         services.AddSingleton<FanControlViewModel>();

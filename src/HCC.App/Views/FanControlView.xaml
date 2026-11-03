@@ -113,7 +113,8 @@
                         <Run Text="Kurve · " /><Run Text="{Binding SelectedChannel.DisplayName, Mode=OneWay}" />
                     </TextBlock>
 
-                    <TextBlock Text="Temperaturquelle (stabile Sensor-ID)"
+                    <TextBlock Text="Temperaturquelle"
+                               ToolTip="Die Sensor-ID bleibt über Neustarts stabil."
                                Foreground="{DynamicResource MutedTextBrush}"
                                FontSize="12"
                                Margin="0,0,0,4" />

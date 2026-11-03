@@ -4,73 +4,298 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="32" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,8,0,2" />
+        </Style>
+
+        <Style x:Key="StatusDotStyle" TargetType="TextBlock">
+            <Setter Property="Text" Value="●" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource StatusWarnBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsOk}" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource StatusOkBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <DockPanel Margin="0,0,0,20">
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,16">
             <Button DockPanel.Dock="Right"
                     Content="Aktualisieren"
                     Command="{Binding RefreshCommand}"
                     Style="{StaticResource SecondaryButtonStyle}"
                     VerticalAlignment="Top" />
-            <StackPanel>
+            <StackPanel Margin="0,0,16,0">
                 <TextBlock Text="Systemleistung" FontSize="18" FontWeight="SemiBold" />
-                <TextBlock Text="CPU- und GPU-Werte kommen von verfügbaren Sensoren; RAM wird von Windows gemeldet." Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0" />
-                <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0" />
+                <TextBlock Text="CPU- und GPU-Werte kommen von verfügbaren Sensoren; RAM meldet Windows."
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           Margin="0,4,0,0"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Status}"
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           Margin="0,4,0,0"
+                           TextWrapping="Wrap" />
             </StackPanel>
         </DockPanel>
 
         <UniformGrid Grid.Row="1" Columns="3" VerticalAlignment="Top">
-            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,12,0">
+            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock Text="CPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
-                    <TextBlock Text="{Binding CpuUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Visibility="{Binding CpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartCpuBrush}" Background="{DynamicResource TrackBrush}" />
-                    <TextBlock Text="Auslastung" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <DockPanel>
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
+                            <TextBlock Text="{Binding CpuChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        </Border>
+                        <TextBlock Text="CPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding CpuUsageText}" Style="{StaticResource MetricValueStyle}" />
+                    <TextBlock Text="{Binding CpuDetail}" Style="{StaticResource CaptionTextStyle}" />
+                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource ChartCpuBrush}"
+                                 Background="{DynamicResource TrackBrush}"
+                                 Visibility="{Binding CpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="6,0">
+            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="6,0">
                 <StackPanel>
-                    <TextBlock Text="GPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
-                    <TextBlock Text="{Binding GpuUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Visibility="{Binding GpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartGpuBrush}" Background="{DynamicResource TrackBrush}" />
-                    <TextBlock Text="{Binding GpuUsageSource, StringFormat={}Sensor: {0}}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <DockPanel>
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
+                            <TextBlock Text="{Binding GpuChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        </Border>
+                        <TextBlock Text="GPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding GpuUsageText}" Style="{StaticResource MetricValueStyle}" />
+                    <TextBlock Text="{Binding GpuDetail}" Style="{StaticResource CaptionTextStyle}" />
+                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource ChartGpuBrush}"
+                                 Background="{DynamicResource TrackBrush}"
+                                 Visibility="{Binding GpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="12,0,0,0">
+
+            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="12,0,0,0">
                 <StackPanel>
-                    <TextBlock Text="ARBEITSSPEICHER" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" />
-                    <TextBlock Text="{Binding MemoryUsageText}" FontSize="34" FontWeight="SemiBold" Margin="0,14,0,18" />
-                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Visibility="{Binding MemoryAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" Maximum="100" Height="6" Foreground="{DynamicResource ChartMemoryBrush}" Background="{DynamicResource TrackBrush}" />
-                    <TextBlock Text="{Binding MemorySummary}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,12,0,0" />
+                    <DockPanel>
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
+                            <TextBlock Text="{Binding MemoryChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        </Border>
+                        <TextBlock Text="RAM" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding MemoryUsageText}" Style="{StaticResource MetricValueStyle}" />
+                    <TextBlock Text="{Binding MemoryDetail}" Style="{StaticResource CaptionTextStyle}" />
+                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource ChartMemoryBrush}"
+                                 Background="{DynamicResource TrackBrush}"
+                                 Visibility="{Binding MemoryAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>
         </UniformGrid>
-        <Border Grid.Row="2" Margin="0,22,0,0" Style="{StaticResource CardStyle}" Padding="18">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <StackPanel Margin="0,0,0,8">
-                    <TextBlock Text="Leistungsverlauf" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding SamplingDescription}" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,4,0,0" />
-                </StackPanel>
-                <lvc:CartesianChart Grid.Row="1"
-                                    Series="{Binding Series}"
-                                    XAxes="{Binding XAxes}"
-                                    YAxes="{Binding YAxes}"
-                                    Background="{DynamicResource ChartBackgroundBrush}"
-                                    LegendPosition="Bottom"
-                                    LegendTextPaint="{Binding ChartLegendTextPaint}"
-                                    LegendBackgroundPaint="{Binding ChartLegendBackgroundPaint}" />
-            </Grid>
+
+        <Border Grid.Row="2"
+                Background="{DynamicResource SurfaceAltBrush}"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="14,10"
+                Margin="0,20,0,0">
+            <StackPanel>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left"
+                               Text="Aufzeichnung"
+                               Style="{StaticResource SectionHeaderStyle}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0" />
+                    <TextBlock DockPanel.Dock="Left"
+                               Text="● läuft"
+                               Foreground="{DynamicResource AccentBrush}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0"
+                               ToolTip="Die laufende Aufzeichnung wird beim Beenden automatisch abgeschlossen."
+                               Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <WrapPanel VerticalAlignment="Center">
+                        <TextBox Width="130"
+                                 Text="{Binding RecordingName, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="Name der neuen Sitzung – leer lassen für einen automatischen Namen"
+                                 Style="{StaticResource AppTextBoxStyle}" />
+                        <Button Content="Start"
+                                Command="{Binding StartRecordingCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="8,0,0,0"
+                                IsEnabled="{Binding CanStartRecording}" />
+                        <Button Content="Stopp"
+                                Command="{Binding StopRecordingCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="8,0,0,0"
+                                IsEnabled="{Binding IsRecording}" />
+                        <ComboBox Width="200"
+                                  ItemsSource="{Binding RecordedSessions}"
+                                  SelectedItem="{Binding SelectedRecording}"
+                                  DisplayMemberPath="DisplayName"
+                                  ToolTip="Gespeicherte Aufzeichnung"
+                                  Style="{StaticResource AppComboBoxStyle}"
+                                  Margin="14,0,0,0" />
+                        <Button Content="Anzeigen"
+                                Command="{Binding ShowRecordingCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="8,0,0,0" />
+                        <Button Content="Live"
+                                Command="{Binding ShowLiveCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="8,0,0,0" />
+                        <Button Content="CSV"
+                                Command="{Binding ExportRecordingCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                ToolTip="Ausgewählte Aufzeichnung als CSV in den Export-Ordner schreiben"
+                                Margin="8,0,0,0" />
+                        <Button Content="Löschen"
+                                Command="{Binding DeleteRecordingCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                ToolTip="Ausgewählte Aufzeichnung samt Datei entfernen"
+                                Margin="8,0,0,0" />
+                    </WrapPanel>
+                </DockPanel>
+                <TextBlock Text="{Binding RecordingStatus}"
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,0" />
+            </StackPanel>
         </Border>
+
+
+        <Grid Grid.Row="3" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.9*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="18" Margin="0,0,16,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,8">
+                        <TextBlock Text="Leistungsverlauf" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding SamplingDescription}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+                    <lvc:CartesianChart Grid.Row="1"
+                                        MinHeight="200"
+                                        VerticalAlignment="Stretch"
+                                        Series="{Binding Series}"
+                                        XAxes="{Binding XAxes}"
+                                        YAxes="{Binding YAxes}"
+                                        Background="{DynamicResource ChartBackgroundBrush}"
+                                        LegendPosition="Bottom"
+                                        LegendTextPaint="{Binding ChartLegendTextPaint}"
+                                        LegendBackgroundPaint="{Binding ChartLegendBackgroundPaint}" />
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Temperaturen" Style="{StaticResource SectionHeaderStyle}" />
+                            <ItemsControl ItemsSource="{Binding Temperatures}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,9">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" FontSize="12"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="1" Text="{Binding ValueDisplay}" FontSize="12"
+                                                       FontWeight="SemiBold" Margin="8,0,0,0" />
+                                            <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Value="{Binding Percent}"
+                                                         Maximum="100" Height="4" Margin="0,5,0,0" BorderThickness="0"
+                                                         Foreground="{DynamicResource ChartMemoryBrush}"
+                                                         Background="{DynamicResource TrackBrush}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Lüfter" Style="{StaticResource SectionHeaderStyle}" />
+                            <ItemsControl ItemsSource="{Binding Fans}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding StateText}" Style="{StaticResource CaptionTextStyle}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding RpmText}" FontSize="12"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="Systemstatus" Style="{StaticResource SectionHeaderStyle}" />
+                            <ItemsControl ItemsSource="{Binding HardwareStatus}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Component}" FontSize="12" />
+                                                <TextBlock Text="{Binding Device}" Style="{StaticResource CaptionTextStyle}" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                                <TextBlock Style="{StaticResource StatusDotStyle}" />
+                                                <TextBlock Text="{Binding StatusText}" FontSize="11" Margin="5,0,0,0" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

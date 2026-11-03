@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HCC.App.ViewModels"
         xmlns:views="clr-namespace:HCC.App.Views"
+        xmlns:controls="clr-namespace:HCC.App.Controls"
         Title="Hardware Control Center"
         Width="1280"
         Height="820"
@@ -46,15 +47,39 @@
                     </StackPanel>
 
                     <TextBlock Text="ARBEITSBEREICH" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource MutedTextBrush}" Margin="12,0,0,9" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="▦   Dashboard" Command="{Binding NavigateDashboardCommand}" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="◉   Monitoring" Command="{Binding NavigateMonitoringCommand}" />
-                    <Button Style="{StaticResource NavigationButtonStyle}" Content="❄   Lüftersteuerung" Command="{Binding NavigateFanControlCommand}" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="▦   Dashboard" Command="{Binding NavigateDashboardCommand}"
+                            controls:NavigationState.IsActive="{Binding IsDashboardActive}" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="◉   Monitoring" Command="{Binding NavigateMonitoringCommand}"
+                            controls:NavigationState.IsActive="{Binding IsMonitoringActive}" />
+                    <Button Style="{StaticResource NavigationButtonStyle}" Content="❄   Lüftersteuerung" Command="{Binding NavigateFanControlCommand}"
+                            controls:NavigationState.IsActive="{Binding IsFanControlActive}" />
                 </StackPanel>
 
                 <Button DockPanel.Dock="Bottom"
                         Style="{StaticResource NavigationButtonStyle}"
                         Content="⚙   Einstellungen"
-                        Command="{Binding NavigateSettingsCommand}" />
+                        Command="{Binding NavigateSettingsCommand}"
+                        controls:NavigationState.IsActive="{Binding IsSettingsActive}" />
+
+                <Border DockPanel.Dock="Bottom"
+                        Background="{DynamicResource SurfaceAltBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12"
+                        Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="ERKANNTES SYSTEM" FontSize="10" Foreground="{DynamicResource MutedTextBrush}" />
+                        <TextBlock Text="{Binding Dashboard.SystemTitle}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,6,0,2"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Dashboard.SystemSubtitle}"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
             </DockPanel>
         </Border>
 
@@ -65,7 +90,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" Margin="0,0,0,28">
-                <Border DockPanel.Dock="Right" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="14" Padding="12,7" VerticalAlignment="Center">
+                <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" CornerRadius="20" Padding="11,6" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Width="7" Height="7" Fill="{Binding Dashboard.StatusIndicatorBrush}" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />

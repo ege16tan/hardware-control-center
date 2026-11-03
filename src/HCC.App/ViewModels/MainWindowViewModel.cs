@@ -8,6 +8,10 @@ public sealed class MainWindowViewModel : ObservableObject
     private object _currentPage;
     private string _currentTitle = "Dashboard";
     private string _currentSubtitle = "Systemübersicht und Hardwarestatus";
+    private bool _isDashboardActive = true;
+    private bool _isMonitoringActive;
+    private bool _isFanControlActive;
+    private bool _isSettingsActive;
 
     public MainWindowViewModel(
         DashboardViewModel dashboard,
@@ -58,10 +62,39 @@ public sealed class MainWindowViewModel : ObservableObject
     public IRelayCommand NavigateFanControlCommand { get; }
     public IRelayCommand NavigateSettingsCommand { get; }
 
+    public bool IsDashboardActive
+    {
+        get => _isDashboardActive;
+        private set => SetProperty(ref _isDashboardActive, value);
+    }
+
+    public bool IsMonitoringActive
+    {
+        get => _isMonitoringActive;
+        private set => SetProperty(ref _isMonitoringActive, value);
+    }
+
+    public bool IsFanControlActive
+    {
+        get => _isFanControlActive;
+        private set => SetProperty(ref _isFanControlActive, value);
+    }
+
+    public bool IsSettingsActive
+    {
+        get => _isSettingsActive;
+        private set => SetProperty(ref _isSettingsActive, value);
+    }
+
     private void NavigateTo(object page, string title, string subtitle)
     {
         CurrentPage = page;
         CurrentTitle = title;
         CurrentSubtitle = subtitle;
+
+        IsDashboardActive = ReferenceEquals(page, Dashboard);
+        IsMonitoringActive = ReferenceEquals(page, Monitoring);
+        IsFanControlActive = ReferenceEquals(page, FanControl);
+        IsSettingsActive = ReferenceEquals(page, Settings);
     }
 }

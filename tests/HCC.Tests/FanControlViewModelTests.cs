@@ -61,6 +61,61 @@ public sealed class FanControlViewModelTests
         if (failure is not null) ExceptionDispatchInfo.Capture(failure).Throw();
     }
 
+    [Fact]
+    public void TemperaturePickerOnlyOffersCelsiusSources()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var directory = Path.Combine(Path.GetTempPath(), $"hcc-tests-{Guid.NewGuid():N}");
+                Directory.CreateDirectory(directory);
+                try
+                {
+                    var settings = FanCurveSettings.Load(directory);
+                    using var sampler = new MetricsSampler(new FixedSnapshotProvider(MixedUnitSnapshot()), new MonitoringSettings(directory));
+                    using var viewModel = new FanControlViewModel(sampler, settings);
+
+                    PumpUntil(() => viewModel.TemperatureSensors.Count > 0);
+
+                    Assert.Equal(["celsius-1"], viewModel.TemperatureSensors.Select(sensor => sensor.Identifier));
+                    Assert.Contains("1 Temperatursensor", viewModel.Status);
+                }
+                finally
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null) ExceptionDispatchInfo.Capture(failure).Throw();
+    }
+
+    private static MetricSnapshot MixedUnitSnapshot() => new(
+        CpuUsagePercent: 10,
+        GpuUsagePercent: 10,
+        MemoryUsagePercent: 10,
+        UsedMemoryGigabytes: 2,
+        TotalMemoryGigabytes: 32,
+        Sensors:
+        [
+            new HardwareSensorReading("CPU", "CPU Package", "Temperature", 45, "°C", "celsius-1", "Cpu"),
+            new HardwareSensorReading("CPU", "Core Sensor", "Temperature", 318, "K", "kelvin-1", "Cpu"),
+            new HardwareSensorReading("Board", "Sensor °F", "Temperature", 113, "°F", "fahrenheit-1", "Motherboard"),
+            new HardwareSensorReading("CPU", "CPU Total", "Load", 12, "%", "load-1", "Cpu"),
+        ],
+        FanChannels:
+        [
+            new FanChannel("fan-1", "Nuvoton NCT6779D", "SuperIO", "Fan #1", "fan-1", 900, "control-1", 40, FanCapability.ControlCandidate),
+        ]);
+
     private static void PumpUntil(Func<bool> condition)
     {
         for (var attempt = 0; attempt < 200 && !condition(); attempt++)

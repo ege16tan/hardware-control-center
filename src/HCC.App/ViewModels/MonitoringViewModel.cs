@@ -52,7 +52,7 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
 
     private void OnRefreshIntervalChanged(object? sender, EventArgs e) => OnUiThread(() =>
     {
-        if (Sensors.Count > 0) Status = $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden";
+        if (Sensors.Count > 0) Status = $"{Plural(HardwareDevices.Count, "Gerät", "Geräte")} · {Plural(Sensors.Count, "Sensorwert", "Sensorwerte")} · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden";
     });
 
     private void OnSnapshotUpdated(MetricSnapshot snapshot) => OnUiThread(() => ApplySnapshot(snapshot));
@@ -70,11 +70,14 @@ public sealed class MonitoringViewModel : ObservableObject, IDisposable
         foreach (var channel in snapshot.FanChannels ?? []) FanChannels.Add(channel);
         FanStatus = FanChannels.Count == 0
             ? "Keine Lüfter-Drehzahlsensoren gefunden."
-            : $"{FanChannels.Count} Lüfter-Drehzahlsensor(en) erkannt. Die Steuerung bleibt deaktiviert, bis die Anschlüsse am MSI H87-G43 geprüft wurden.";
+            : $"{Plural(FanChannels.Count, "Lüfter-Drehzahlsensor", "Lüfter-Drehzahlsensoren")} erkannt. Die Steuerung bleibt deaktiviert, bis die Anschlüsse am MSI H87-G43 geprüft wurden.";
         Status = snapshot.Status ?? (Sensors.Count == 0
             ? "Keine unterstützten Sensoren gefunden."
-            : $"{HardwareDevices.Count} Geräte · {Sensors.Count} Sensorwerte · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
+            : $"{Plural(HardwareDevices.Count, "Gerät", "Geräte")} · {Plural(Sensors.Count, "Sensorwert", "Sensorwerte")} · Aktualisierung alle {_settings.RefreshIntervalSeconds} Sekunden");
     }
+
+    private static string Plural(int count, string singular, string plural) =>
+        count == 1 ? $"1 {singular}" : $"{count} {plural}";
 
     private void OnUiThread(Action action)
     {

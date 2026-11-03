@@ -17,6 +17,16 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <TextBlock Text="Erkannte Hardware" Style="{StaticResource SectionHeaderStyle}" />
+                    <Grid Margin="8,0,8,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Gerät" Style="{StaticResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="1" Text="Typ" Style="{StaticResource CaptionTextStyle}" Margin="12,0" />
+                        <TextBlock Grid.Column="2" Text="Sensoren" Style="{StaticResource CaptionTextStyle}" />
+                    </Grid>
                     <ItemsControl ItemsSource="{Binding HardwareDevices}" Margin="0,0,0,18">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
