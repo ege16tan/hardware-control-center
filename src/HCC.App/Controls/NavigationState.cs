@@ -4,7 +4,7 @@ namespace HCC.App.Controls;
 
 /// <summary>
 /// Marks the navigation entry of the page that is currently shown. It is an attached
-/// property so <c>NavigationButtonStyle</c> can react to it without knowing the view models.
+/// property so <c>RailButtonStyle</c> can react to it without knowing the view models.
 /// </summary>
 public static class NavigationState
 {

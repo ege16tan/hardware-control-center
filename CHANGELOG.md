@@ -31,7 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   and status tokens shared by dark and light
 - Navigation is a 72 px icon rail with tooltips; the header shows the detected
   system above the page title and keeps the page subtitle
-- Dashboard metric values are larger (40 px) with one accent strip per metric
+- Dashboard metric values are larger (54 px, light weight) with a 4 px bar per
+  metric; card labels are quiet 12 px captions in caps
+- Flatter surfaces: 18 px card radius, 22 px padding, 10–12 px control radii
+- The unused `NavigationButtonStyle` (wide sidebar) is gone; the rail style is the
+  only navigation style left
 - The sidebar marks the active page instead of looking identical on every page
 - Dashboard uses a card layout: metric cards, a full-width recording strip and a
   content row with the chart in its own star row next to temperatures, fans and

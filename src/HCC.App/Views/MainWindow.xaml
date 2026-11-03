@@ -82,29 +82,25 @@
             </DockPanel>
         </Border>
 
-        <Grid Grid.Column="1" Margin="32,24,32,28">
+        <Grid Grid.Column="1" Margin="40,30,40,30">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <DockPanel Grid.Row="0" Margin="0,0,0,20">
-                <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" CornerRadius="20" Padding="11,6" VerticalAlignment="Center">
+            <DockPanel Grid.Row="0" Margin="0,0,0,24">
+                <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" CornerRadius="16" Padding="12,6" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Width="7" Height="7" Fill="{Binding Dashboard.StatusIndicatorBrush}" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding Dashboard.DataMode}" Margin="8,0,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
                     </StackPanel>
                 </Border>
-                <StackPanel Margin="0,0,16,0">
+                <StackPanel Margin="0,0,16,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Dashboard.SystemTitle}"
-                               FontSize="12"
-                               Foreground="{DynamicResource MutedTextBrush}"
+                               Style="{StaticResource CaptionTextStyle}"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding CurrentTitle}" FontSize="26" FontWeight="SemiBold" Margin="0,2,0,0" />
-                    <TextBlock Text="{Binding CurrentSubtitle}"
-                               Foreground="{DynamicResource MutedTextBrush}"
-                               Margin="0,4,0,0"
-                               TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding CurrentTitle}" Style="{StaticResource PageTitleStyle}" Margin="0,2,0,0" />
+                    <TextBlock Text="{Binding CurrentSubtitle}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" />
                 </StackPanel>
             </DockPanel>
             <Border Grid.Row="1"

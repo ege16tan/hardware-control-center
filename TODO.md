@@ -197,7 +197,12 @@ Eintrag in [docs/hardware-verification-h87-g43.md](docs/hardware-verification-h8
       `ThemeSettings.Changed` neu erzeugt; Gesamtstand 138 Tests grün
 - [x] Shell auf Icon-Rail (72 px) umgebaut: Logo, vier Rail-Buttons mit Tooltip und
       `AutomationProperties.Name`, Kopfzeile mit erkanntem System, Titel und
-      Untertitel; Dashboard-Kennzahlen 40 px mit Akzentstreifen je Metrik.
-      Lüfter-Modi (Silent/Balanced/Turbo) bewusst **nicht** gebaut, weil dafür
-      Domänen-Semantik und Phase C fehlen.
+      Untertitel
+- [x] Design-System-Durchgang nach `ui.txt`: `CardStyle` 18/22, `PageTitleStyle`,
+      `BodyTextStyle`, `BigValueStyle` (54 px), `ThinBarStyle`, 12-px-Labels, runde
+      TextBoxen, `RailButtonStyle` 52 px; `NavigationButtonStyle` entfernt.
+      Fokusringe und `AutomationProperties.Name` bewusst beibehalten (der Entwurf
+      hatte beides gestrichen).
+      *Nicht gebaut:* Lüfter-Modi (Silent/Balanced/Turbo) – dafür fehlen
+      Domänen-Semantik und Phase C.
 

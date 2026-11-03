@@ -5,12 +5,6 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="40" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,10,0,2" />
-        </Style>
-
         <Style x:Key="StatusDotStyle" TargetType="TextBlock">
             <Setter Property="Text" Value="●" />
             <Setter Property="FontSize" Value="10" />
@@ -52,60 +46,57 @@
         </DockPanel>
 
         <UniformGrid Grid.Row="1" Columns="3" VerticalAlignment="Top">
-            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,12,0">
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
                 <StackPanel>
-                    <Border Height="3" CornerRadius="2" Margin="0,0,0,10" Background="{DynamicResource ChartCpuBrush}" />
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
-                            <TextBlock Text="{Binding CpuChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" MaxWidth="170">
+                            <TextBlock Text="{Binding CpuChip}" Style="{StaticResource ChipTextStyle}" />
                         </Border>
-                        <TextBlock Text="CPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock Text="PROZESSOR" Style="{StaticResource SectionHeaderStyle}" Margin="0" VerticalAlignment="Center" />
                     </DockPanel>
-                    <TextBlock Text="{Binding CpuUsageText}" Style="{StaticResource MetricValueStyle}" />
-                    <TextBlock Text="{Binding CpuDetail}" Style="{StaticResource CaptionTextStyle}" />
-                    <ProgressBar Value="{Binding CpuUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
-                                 BorderThickness="0"
+                    <TextBlock Text="{Binding CpuUsageText}" Style="{StaticResource BigValueStyle}" />
+                    <TextBlock Text="{Binding CpuDetail}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" />
+                    <ProgressBar Style="{StaticResource ThinBarStyle}"
+                                 Value="{Binding CpuUsage, Mode=OneWay}"
                                  Foreground="{DynamicResource ChartCpuBrush}"
-                                 Background="{DynamicResource TrackBrush}"
+                                 Margin="0,18,0,0"
                                  Visibility="{Binding CpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="6,0">
+            <Border Style="{StaticResource CardStyle}" Margin="6,0">
                 <StackPanel>
-                    <Border Height="3" CornerRadius="2" Margin="0,0,0,10" Background="{DynamicResource ChartGpuBrush}" />
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
-                            <TextBlock Text="{Binding GpuChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" MaxWidth="170">
+                            <TextBlock Text="{Binding GpuChip}" Style="{StaticResource ChipTextStyle}" />
                         </Border>
-                        <TextBlock Text="GPU" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock Text="GRAFIK" Style="{StaticResource SectionHeaderStyle}" Margin="0" VerticalAlignment="Center" />
                     </DockPanel>
-                    <TextBlock Text="{Binding GpuUsageText}" Style="{StaticResource MetricValueStyle}" />
-                    <TextBlock Text="{Binding GpuDetail}" Style="{StaticResource CaptionTextStyle}" />
-                    <ProgressBar Value="{Binding GpuUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
-                                 BorderThickness="0"
+                    <TextBlock Text="{Binding GpuUsageText}" Style="{StaticResource BigValueStyle}" />
+                    <TextBlock Text="{Binding GpuDetail}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" />
+                    <ProgressBar Style="{StaticResource ThinBarStyle}"
+                                 Value="{Binding GpuUsage, Mode=OneWay}"
                                  Foreground="{DynamicResource ChartGpuBrush}"
-                                 Background="{DynamicResource TrackBrush}"
+                                 Margin="0,18,0,0"
                                  Visibility="{Binding GpuAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>
 
 
-            <Border Style="{StaticResource CardStyle}" Padding="16" Margin="12,0,0,0">
+            <Border Style="{StaticResource CardStyle}" Margin="12,0,0,0">
                 <StackPanel>
-                    <Border Height="3" CornerRadius="2" Margin="0,0,0,10" Background="{DynamicResource ChartMemoryBrush}" />
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}">
-                            <TextBlock Text="{Binding MemoryChip}" Style="{StaticResource ChipTextStyle}" MaxWidth="150" />
+                        <Border DockPanel.Dock="Right" Style="{StaticResource ChipStyle}" MaxWidth="170">
+                            <TextBlock Text="{Binding MemoryChip}" Style="{StaticResource ChipTextStyle}" />
                         </Border>
-                        <TextBlock Text="RAM" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock Text="ARBEITSSPEICHER" Style="{StaticResource SectionHeaderStyle}" Margin="0" VerticalAlignment="Center" />
                     </DockPanel>
-                    <TextBlock Text="{Binding MemoryUsageText}" Style="{StaticResource MetricValueStyle}" />
-                    <TextBlock Text="{Binding MemoryDetail}" Style="{StaticResource CaptionTextStyle}" />
-                    <ProgressBar Value="{Binding MemoryUsage, Mode=OneWay}" Maximum="100" Height="6" Margin="0,14,0,0"
-                                 BorderThickness="0"
+                    <TextBlock Text="{Binding MemoryUsageText}" Style="{StaticResource BigValueStyle}" />
+                    <TextBlock Text="{Binding MemoryDetail}" Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" />
+                    <ProgressBar Style="{StaticResource ThinBarStyle}"
+                                 Value="{Binding MemoryUsage, Mode=OneWay}"
                                  Foreground="{DynamicResource ChartMemoryBrush}"
-                                 Background="{DynamicResource TrackBrush}"
+                                 Margin="0,18,0,0"
                                  Visibility="{Binding MemoryAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
             </Border>

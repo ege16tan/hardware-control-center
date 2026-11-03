@@ -72,16 +72,19 @@ Regeln:
 
 | Key | Verwendung |
 |---|---|
-| `CardStyle` | Oberste Fläche einer Seite, `Border` mit Hintergrund/Rahmen/Radius/Padding |
-| `SectionHeaderStyle` | Abschnittsüberschrift (`TextBlock`) |
-| `NavigationButtonStyle` | Breite Sidebar-Navigation (Text + Glyph) |
-| `RailButtonStyle` | Icon-Rail (72 px): 48×48, `Segoe MDL2 Assets`, Tooltip **und** `AutomationProperties.Name` verpflichtend |
+| `CardStyle` | Oberste Fläche einer Seite, `Border` mit 18 px Radius und 22 px Padding |
+| `PageTitleStyle` | Seitentitel in der Kopfzeile (28 px, Light) |
+| `SectionHeaderStyle` | Kleines Label über Karteninhalten (12 px, gedämpft); Text in Versalien |
+| `BodyTextStyle` | Fließtext (13 px, umbrechend) |
+| `RailButtonStyle` | Icon-Rail (72 px): 52×52, `Segoe MDL2 Assets`, Tooltip **und** `AutomationProperties.Name` verpflichtend |
 | `PrimaryButtonStyle` | Eine klare Hauptaktion pro Kontext |
 | `SecondaryButtonStyle` | Alle normalen Aktionen (Standardwahl) |
-| `AppTextBoxStyle` | Jedes `TextBox` |
-| `AppComboBoxStyle` | Jedes `ComboBox` (inkl. Dropdown-Template) |
+| `AppTextBoxStyle` | Jedes `TextBox` (runde 10 px, Fokus in `AccentBrush`) |
+| `AppComboBoxStyle` | Jedes `ComboBox` (inkl. Dropdown-Template, Mindesthöhe 36) |
 | `ChipStyle` + `ChipTextStyle` | Badge neben Überschriften (z. B. `Intel Core i7-4770`, `32 GB`) |
-| `CaptionTextStyle` | Kleine Sekundärzeile unter Werten (11px, gedämpft, Ellipsis) |
+| `CaptionTextStyle` | Sekundärzeile unter Werten (11 px, gedämpft, umbrechend) |
+| `BigValueStyle` | Große Kennzahl auf dem Dashboard (54 px, Light) |
+| `ThinBarStyle` | 4-px-Fortschrittsbalken unter Kennzahlen |
 | `AppSliderStyle` | `Slider` (Kurvenvorschau) – gefüllte Spur in `AccentBrush` |
 | `AppScrollBarStyle` (+ implizit) | Alle Scrollleisten; implizit registriert, nie pro View setzen |
 | `ToolTip` (implizit) | Jeder Tooltip; nicht lokal überschreiben |
