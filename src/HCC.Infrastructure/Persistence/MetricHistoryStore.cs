@@ -48,7 +48,7 @@ public sealed class MetricHistoryStore
             try
             {
                 EnsureLoaded();
-                if (!IsValid(entry)) return false;
+                if (!entry.IsValid) return false;
                 Directory.CreateDirectory(Path.GetDirectoryName(_historyPath)!);
                 File.AppendAllText(_historyPath, JsonSerializer.Serialize(entry) + Environment.NewLine, Utf8);
                 _entries.Add(entry);
@@ -80,7 +80,7 @@ public sealed class MetricHistoryStore
         {
             try
             {
-                if (JsonSerializer.Deserialize<MetricHistoryEntry>(line) is { } entry && IsValid(entry)) loadedEntries.Add(entry);
+                if (JsonSerializer.Deserialize<MetricHistoryEntry>(line) is { IsValid: true } entry) loadedEntries.Add(entry);
             }
             catch (JsonException) { }
         }
@@ -100,10 +100,4 @@ public sealed class MetricHistoryStore
         File.WriteAllLines(temporaryPath, _entries.Select(entry => JsonSerializer.Serialize(entry)), Utf8);
         File.Move(temporaryPath, _historyPath, overwrite: true);
     }
-
-    private static bool IsValid(MetricHistoryEntry entry) =>
-        (entry.CpuUsagePercent.HasValue || entry.GpuUsagePercent.HasValue || entry.MemoryUsagePercent.HasValue) &&
-        IsValid(entry.CpuUsagePercent) && IsValid(entry.GpuUsagePercent) && IsValid(entry.MemoryUsagePercent);
-
-    private static bool IsValid(double? value) => value is null or (>= 0 and <= 100);
 }

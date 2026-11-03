@@ -40,6 +40,17 @@ public sealed class AlertEvaluatorTests
         Assert.Empty(AlertEvaluator.Evaluate(snapshot, 85));
     }
 
+    [Theory]
+    [InlineData("K")]
+    [InlineData("°F")]
+    [InlineData("")]
+    public void IgnoresTemperatureSensorsWithoutCelsiusUnit(string unit)
+    {
+        var snapshot = Snapshot(new HardwareSensorReading("Mainboard", "Temperature #6", "Temperature", 91, unit, "temp-6", "Motherboard"));
+
+        Assert.Empty(AlertEvaluator.Evaluate(snapshot, 85));
+    }
+
     [Fact]
     public void SortsAlertsByHottestSensorFirst()
     {

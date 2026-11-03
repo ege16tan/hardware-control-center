@@ -11,6 +11,7 @@ public static class AlertEvaluator
 
         return snapshot.Sensors
             .Where(sensor => string.Equals(sensor.Type, "Temperature", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(sensor.Unit, "°C", StringComparison.OrdinalIgnoreCase)
                 && double.IsFinite(sensor.Value)
                 && sensor.Value > temperatureWarningCelsius)
             .Select(sensor => new SensorAlert(
