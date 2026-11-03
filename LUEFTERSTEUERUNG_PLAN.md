@@ -136,6 +136,15 @@ Die Kurvenlogik (`FanCurveEngine`) enthält **keine** Hardwarezugriffe. Dadurch 
 9. **Kein Schreiben im UI-Thread**, und kein Schreiben im Sampler-Hintergrund. Eigener Hintergrundpfad oder eigener Timer im `FanControlService`.
 10. **Keine Administratorrechte** ohne Notwendigkeit (siehe `neu 5.txt`, Regel 7). Falls LHM Admin-Rechte braucht, muss das dokumentiert und begründet werden.
 
+**Umsetzungsstand (2026-11-03):** Regeln 1, 5 und 8 sind in `FanControlService`
+verdrahtet (`FanControlDefaults`: Mindestwert 30 %, Hysterese 2 °C, Mindestabstand 3 s,
+Rückfall nach 3 fehlgeschlagenen Schreibvorgängen) und mit Fakes getestet. Regel 3 wird
+streng gelesen: Werte außerhalb 0–100 % und nicht-endliche Werte werden abgelehnt, nur
+die Untergrenze wird geklemmt – damit ist auch Regel 2 (harte 100 %-Grenze) erfüllt.
+Regeln 4, 6, 7 und 10 waren bereits umgesetzt. **Offen:** Regel 9 (eigener
+Hintergrundpfad/Timer) – es gibt noch keinen automatischen Schreibpfad, und ohne
+Board-Verifikation bleibt `LhmFanController` gesperrt.
+
 ### 5.4 Zustandsmaschine pro Kanal
 
 ```
@@ -251,14 +260,14 @@ Die Lüftersteuerung gilt erst als fertig, wenn alle Punkte erfüllt sind:
 
 - [x] Phase A: Diagnosebericht vom Zielboard liegt vor (NCT6779D, 29 Sensoren, 5 Lüfterkanäle; siehe `docs/hardware-verification-h87-g43.md`)
 - [x] Phase B: Jeder aktivierbare Kanal ist auf dem Board getestet und dokumentiert (Fan #2 und Fan #4 reagieren auf 40 %, Rückfall auf BIOS-Automatik bestätigt; Fan #1/#3/#5 ohne Lüfterreaktion, bleiben unverifiziert; siehe `docs/hardware-verification-h87-g43.md`)
-- [ ] Build ohne Fehler (`dotnet build`)
-- [ ] Alle Tests grün (`dotnet test`), inklusive der neuen Tests aus Abschnitt 8
-- [ ] App startet, Ansicht „Lüftersteuerung“ ist sichtbar
-- [ ] Nicht verifizierte Kanäle zeigen „Nur überwacht“
+- [x] Build ohne Fehler (`dotnet build`)
+- [x] Alle Tests grün (`dotnet test`), inklusive der neuen Tests aus Abschnitt 8 (140 Tests am 2026-11-03)
+- [x] App startet, Ansicht „Lüftersteuerung“ ist sichtbar (2026-11-02 gesehen; nach dem UI-Umbau 2026-11-03 strukturell über UI Automation bestätigt)
+- [x] Nicht verifizierte Kanäle zeigen „Nur überwacht“ – in der Oberfläche als „◇ Steuer-Sensor erkannt · nicht verifiziert“ formuliert
 - [ ] Beenden der App setzt aktive Kanäle zurück (auf dem Zielboard getestet)
-- [ ] Fehlender Temperatursensor führt zu Rückfall (getestet)
-- [ ] Keine Schreibzugriffe außerhalb von `LhmFanController`
-- [ ] Dokumentation aktualisiert: `README.md`, `PHASENPLAN.md`, `docs/hardware-verification-h87-g43.md`
+- [x] Fehlender Temperatursensor führt zu Rückfall (getestet) – mit Fake-Controller, siehe `FanControlServiceTests.MissingTemperatureSensorFallsBackWithoutWriting`
+- [x] Keine Schreibzugriffe außerhalb von `LhmFanController` (der Code enthält derzeit überhaupt keinen Schreibaufruf)
+- [x] Dokumentation aktualisiert: `README.md`, `PHASENPLAN.md`, `docs/hardware-verification-h87-g43.md`
 
 ---
 

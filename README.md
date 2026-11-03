@@ -17,6 +17,7 @@ after it was verified on the real board (see [Safety](#safety)).
 - Live CPU, GPU, RAM, temperature, clock, voltage, power and fan-speed readings
 - Detected hardware and sensor inventory, including Super-I/O devices
 - Dashboard with locally persisted performance history
+- Named recording sessions with start/stop and selectable playback in the chart
 - Named monitoring profiles for the refresh interval
 - Fan diagnostics and a curve editor with saved, always-inactive profiles
 - Configurable temperature warning threshold with a visible alarm
@@ -78,6 +79,23 @@ dotnet test .\HardwareControlCenter.sln
 The first start asks for elevation. The dashboard and monitoring page use the
 configured interval (1, 2, 5 or 10 seconds) and share one background sample.
 
+## Local data
+
+HCC writes only below `%LOCALAPPDATA%\HardwareControlCenter`:
+
+| File | Content |
+|---|---|
+| `settings.json` | refresh interval and monitoring profiles |
+| `alerts.json` | temperature warning threshold |
+| `theme.json` | selected theme |
+| `history.jsonl` | recent samples, trimmed to 7200 entries |
+| `fan-curves.json` | saved fan-curve profiles (always inactive) |
+| `sessions\sessions.json`, `sessions\<id>.jsonl` | recording sessions, at most 20 |
+
+A recording session keeps exactly the samples the shared sampler produced; it
+never writes to hardware. The oldest session is removed together with its file
+as soon as a 21st session is started.
+
 ## Project structure
 
 ```
@@ -116,6 +134,7 @@ around a missing driver.
 - [docs/hardware-verification-h87-g43.md](docs/hardware-verification-h87-g43.md) – measured results, Phase A/B
 - [docs/ring0-treiber-integration.md](docs/ring0-treiber-integration.md) – PawnIO integration and residual risks
 - [PHASENPLAN.md](PHASENPLAN.md) – project roadmap
+- [TODO.md](TODO.md) – prioritized open work with acceptance criteria
 - [DEVELOPMENT_SETUP.md](DEVELOPMENT_SETUP.md) – development environment
 - [docs/UI_DESIGN_GUIDE.md](docs/UI_DESIGN_GUIDE.md) – themes and UI conventions
 

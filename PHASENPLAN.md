@@ -1,5 +1,7 @@
 # Hardware Control Center – Entwicklungsphasen
 
+Die aktuelle, priorisierte Arbeitsliste mit Abnahmekriterien steht in [TODO.md](TODO.md).
+
 ## Phase 1 – Grundgerüst
 
 - [x] WPF-Projekt und Solution einrichten
@@ -55,7 +57,7 @@ Die MSI-Dokumentation beschreibt neben Monitoring auch Profile, CPU-Frequenz/Rat
 - [x] Live-Monitoring, Hardware-/Sensorübersicht und lokal gespeicherter Verlauf
 - [x] Benannte Profile für die hier unterstützten Monitoring-Einstellungen
 - [x] Warnschwellen für Temperaturen mit sichtbarem Alarm
-- [ ] Aufzeichnungssitzungen mit Start/Stopp und auswählbarem Verlauf
+- [x] Aufzeichnungssitzungen mit Start/Stopp und auswählbarem Verlauf
 - [ ] Erkennung und sichere Steuerung unterstützter Lüfteranschlüsse
 - [ ] Tuningfunktionen (CPU-/IGP-Takt, Ratio, Spannung, DRAM) nur nach Board-/CPU-Prüfung und mit Schutzgrenzen; bis dahin ausdrücklich nicht freigeben
 - [ ] Mobile/Fernsteuerung erst nach eigener Authentifizierungs- und Netzwerksicherheitsplanung
@@ -105,3 +107,17 @@ Ziel: den Verlauf praktisch nutzbar machen und die Aktualisierung über Einstell
 4. [x] `PawnIoDiagnostics` ergänzen: fehlender/veralteter Treiber erscheint als klarer Handlungshinweis im Snapshot-Status, mit Tests.
 5. [x] Phase A erneut am Board: Status `(ok)`, Nuvoton NCT6779D mit 29 Sensoren, 5 Lüfterkanäle und Control-Werte sichtbar.
 6. [x] Phase B Schreibtest mit Aufsicht: alle Kanäle auf 40 %, Fan #2 und Fan #4 reagieren an der Drehzahl, Rückfall auf BIOS-Automatik bestätigt; Fan #1/#3/#5 ohne Lüfterreaktion, bleiben unverifiziert.
+
+### Erledigter Arbeitssprint – Aufzeichnungssitzungen
+
+1. [x] Messwerte des gemeinsamen Samplers in benannten Sitzungen speichern (`sessions/<id>.jsonl`) und in `sessions/sessions.json` indizieren.
+2. [x] Dashboard-Leiste: Name eingeben oder automatisch vergeben, Start/Stopp, Sitzungsauswahl, „Anzeigen“ und „Live“.
+3. [x] Gespeicherte Sitzung im Leistungsdiagramm anzeigen (höchstens die letzten 720 Messungen) und jederzeit zu den Live-Werten zurückkehren.
+4. [x] Beschädigten Index, unsichere Sitzungs-IDs, fehlende Dateien, ungültige Messpunkte und Schreibfehler sichtbar behandeln; höchstens 20 Sitzungen, die älteste wird samt Datei entfernt.
+5. [x] Beim Beenden der App eine laufende Sitzung abschließen; nach einem Absturz zählt der nächste Start die vorhandenen Messpunkte.
+6. [x] Tests für Start/Stop, Persistenz, Absturzfall, Limit und Fehlerfälle ergänzen; Build und Testlauf (123 Tests) grün.
+
+Dabei zusätzlich behoben:
+
+- [x] Einstellungen scrollen, statt auf kleinen Fenstern abgeschnitten zu werden.
+- [x] Temperaturwarnungen nur für Sensoren mit Einheit `°C`; andere Einheiten lösen keinen Fehlalarm mehr aus.

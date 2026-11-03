@@ -53,7 +53,10 @@ Jedes Theme muss **alle** folgenden Keys als `SolidColorBrush` definieren.
 | `DangerTextBrush` | Alarmtext |
 | `WarningTextBrush` | Warnhinweise (z. B. gesperrte Steuerung) |
 | `ChartCpuBrush`, `ChartGpuBrush`, `ChartMemoryBrush` | Kennzahlen/Diagrammfarben |
-| `ChartBackgroundBrush` | Diagrammfläche (beide Themes dunkel) |
+| `ChartBackgroundBrush` | Diagrammfläche (folgt dem Theme) |
+| `ChipSurfaceBrush`, `ChipBorderBrush` | Chip/Badge-Flächen (`ChipStyle`) |
+| `NavActiveSurfaceBrush`, `NavActiveBorderBrush` | Aktiver Navigationseintrag |
+| `StatusOkBrush`, `StatusWarnBrush`, `StatusDangerBrush` | Statuspunkt in Listen (immer mit Text) |
 
 Regeln:
 
@@ -76,6 +79,15 @@ Regeln:
 | `SecondaryButtonStyle` | Alle normalen Aktionen (Standardwahl) |
 | `AppTextBoxStyle` | Jedes `TextBox` |
 | `AppComboBoxStyle` | Jedes `ComboBox` (inkl. Dropdown-Template) |
+| `ChipStyle` + `ChipTextStyle` | Badge neben Überschriften (z. B. `Intel Core i7-4770`, `32 GB`) |
+| `CaptionTextStyle` | Kleine Sekundärzeile unter Werten (11px, gedämpft, Ellipsis) |
+| `AppSliderStyle` | `Slider` (Kurvenvorschau) – gefüllte Spur in `AccentBrush` |
+| `AppScrollBarStyle` (+ implizit) | Alle Scrollleisten; implizit registriert, nie pro View setzen |
+| `ToolTip` (implizit) | Jeder Tooltip; nicht lokal überschreiben |
+
+Navigation: `controls:NavigationState.IsActive="{Binding IsXActive}"` am Button setzen
+(`MainWindowViewModel` pflegt die Flags in `NavigateTo`). Stil-Trigger färbt Fläche,
+Rahmen und Schrift des aktiven Eintrags – nie inline im View.
 
 Style-Overrides sind lokal erlaubt (z. B. `Margin`), aber keine neuen Farben.
 Fehlt ein Style: zuerst prüfen, ob `SecondaryButtonStyle`/`CardStyle` reicht.
@@ -137,14 +149,18 @@ Wichtig: Die Dateinamen sind Teil des Laufzeitvertrags. Umbenennen bricht
 ## 6. Bekannte Ausnahmen
 
 - `DashboardViewModel` erzeugt LiveCharts-Paints in C# (`SolidColorPaint`,
-  `SKColor`). Diese wechseln zur Laufzeit **nicht** mit dem Theme. Das
-  Diagramm bleibt deshalb in beiden Themes dunkel (`ChartBackgroundBrush`
-  ist in beiden Themes `#1C2028`). Änderung nur mit explizitem Reload der
-  Chart-Paints.
+  `SKColor`). Sie folgen dem Theme nicht von selbst: `ThemeSettings.Changed` löst
+  `ApplyChartTheme()` aus, das Serien, Achsen und Legende neu baut. Neue
+  Chart-Paints dort ergänzen, sonst bleibt die Farbe beim Umschalten stehen.
+- Der `DashboardViewModel`-Test muss `ThemeSettings` mitgeben (`DashboardRecordingTests`).
+- Der Chart-Container muss eine echte `*`-Zeile in einem `Grid` haben
+  (Dashboard: `Grid` → Zeile `Auto`/`*`). In `StackPanel`/`ScrollViewer` bekommt
+  `CartesianChart` unendliche Höhe und rendert Achsen und Plot zusammengedrückt.
+  `MinHeight` allein reicht nicht.
 - Statusindikator und Alarmzustände nutzen semantische `Brushes.*` in
   `DashboardViewModel`; das ist erlaubt, weil Farbe dort nur Zusatz zum Text ist.
-- `PrimaryButtonStyle` wird derzeit nicht verwendet. Nicht löschen, aber auch
-  nicht ohne konkrete Hauptaktion einführen.
+- `PrimaryButtonStyle` ist nur für die eine Hauptaktion pro Kontext gedacht
+  (derzeit „Start“ der Aufzeichnung), nicht für normale Buttons.
 
 ## 7. Prüfliste vor dem Abschluss
 
